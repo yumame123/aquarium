@@ -344,7 +344,101 @@ const WHALE_FLOORS=['b1','1f','2f','3f','4f','5f'];
 const WHALE_SPEED=7, WHALE_STAIR_DUR=4500, WHALE_LEFT_X=10, WHALE_RIGHT_X=290;
 const WHALE_CONTACT=24, WHALE_DAMAGE_INTERVAL=20000;
 let whale={floorIdx:0,x:WHALE_LEFT_X,dir:1,phase:'swim',stairTimer:0,ascending:true,cooldowns:{}};
+/* ============================================================
+   STATE & PERSISTENCE
+============================================================ */
+function loadData(){
+  try{
+    const s=localStorage.getItem('scholarium_v5');
+    if(s){
+      const p=JSON.parse(s);
+      ST.chars=p.chars||[];
+      ST.roomNames=p.roomNames||{};
+      ST.bonds=p.bonds||[];
+    }
+  }catch(e){}
+  ST.chars.forEach(c=>{ if(!c.mental) c.mental='normal'; });
+  
+  // キャラクターの位置状態を復元
+  loadDotStates();
+}
 
+function saveData(){
+  try{
+    localStorage.setItem('scholarium_v5',JSON.stringify({
+      chars:ST.chars,
+      roomNames:ST.roomNames,
+      bonds:ST.bonds
+    }));
+  }catch(e){}
+  
+  // 位置情報も保存
+  saveDotStates();
+  mentalDirty=false;
+}
+
+// 新規追加：dotStates を保存
+function saveDotStates(){
+  try{
+    const statesToSave={};
+    Object.keys(dotStates).forEach(charId=>{
+      const ds=dotStates[charId];
+      statesToSave[charId]={
+        x:ds.x,
+        y:ds.y,
+        currentRoomId:ds.currentRoom?.id,
+        phase:ds.phase
+      };
+    });
+    localStorage.setItem('scholarium_dotstates',JSON.stringify(statesToSave));
+  }catch(e){}
+}
+
+// 新規追加：保存された位置情報を復元
+function loadDotStates(){
+  try{
+    const saved=localStorage.getItem('scholarium_dotstates');
+    if(saved){
+      const states=JSON.parse(saved);
+      Object.keys(states).forEach(charId=>{
+        const char=ST.chars.find(c=>c.id===charId);
+        if(char){
+          dotStates[charId]={...dotStates[charId],...states[charId]};
+        }
+      });
+    }
+  }catch(e){}
+}
+
+// 初期化時に復元
+function initDotState(char){
+  const fp=FLOOR_PLANS[char.floor]; 
+  if(!fp)return;
+  
+  // 既に位置情報が保存されている場合はスキップ
+  if(dotStates[char.id]){
+    return;
+  }
+  
+  let room=fp.rooms.find(r=>r.id===char.room);
+  if(!room||MOVE_RESTRICTED.includes(char.room)){
+    const movable=getMovableRooms(char.floor);
+    room=movable[0]||fp.rooms[0];
+  }
+  const c=roomCenter(room);
+  dotStates[char.id]={
+    x:c.x,y:c.y,phase:'idle',
+    idleTimer:getIdleTime(char.personality||'',char.mental||'normal'),
+    driftTimer:0,driftTX:c.x,driftTY:c.y,
+    currentRoom:room,targetRoom:null,targetX:c.x,targetY:c.y,
+    justMoved:false,
+    mentalNatTimer:80000+Math.random()*100000,
+    classmateTimer:0,crowdTimer:0,socialAloneTimer:0,
+    calmStayTimer:0,energyStayTimer:0,mentalTick:0,
+    togetherTimer:{},
+    separationTimer:0,
+  };
+}
 /* ============================================================
    STATE
 ============================================================ */

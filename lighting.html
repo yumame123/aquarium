@@ -856,7 +856,7 @@ function stepDot(id,ds,char,fid,dt){
         const movable=getMovableRooms(fid).filter(r=>r.id!==ds.currentRoom.id);
         // クジラが同じフロアの廊下を泳いでいる場合、外出を控える
         const whaleHere=whale.phase==='swim'&&WHALE_FLOORS[whale.floorIdx]===fid;
-        const goChance=whaleHere?0.22:1.0;
+        const goChance=whaleHere?0.001:1.0;
         if(movable.length>0&&Math.random()<goChance){
           ds.phase='to_door';
           ds.targetX=doorX(ds.currentRoom);ds.targetY=doorY(ds.currentRoom);

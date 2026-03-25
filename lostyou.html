@@ -1178,8 +1178,8 @@ function startAnim(fid){
     // Whale updates
     stepWhale(dt);
     if(fid===ST.floor){
-      const wEl=document.getElementById('whaleWrap');
-      if(wEl) wEl.style.transform=`translate(${whale.x}px,${CCY}px)`;
+    const wEl=document.getElementById('whaleWrap');
+    if(wEl) wEl.style.transform=`translate(${whale.x}px,${CCY}px)`;
     }
     saveAccum+=dt;
     if(saveAccum>=15000&&mentalDirty){saveData();saveAccum=0;}

@@ -626,7 +626,7 @@ function initDotState(char){
 }
 
 /* ── Bond helpers ── */
-const BOND_THRESHOLD=55000; // 約55秒2人きりで同室
+const BOND_THRESHOLD=10000; // 約55秒2人きりで同室
 
 function getBondPartner(charId){
   const b=ST.bonds.find(b=>b.a===charId||b.b===charId);

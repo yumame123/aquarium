@@ -1079,9 +1079,7 @@ function startAnim(fid){
     saveAccum+=dt;
     if(saveAccum>=5000&&mentalDirty){saveData();saveAccum=0;}
     animRaf=requestAnimationFrame(loop);
-
-    // Draw bond lines every frame
-drawBondLines();
+    drawBondLines();
   }
   animRaf=requestAnimationFrame(loop);
 }

@@ -568,7 +568,7 @@ function pos(el,x,y,w,h){el.style.cssText+=`position:absolute;left:${x}px;top:${
    ANIMATION & MOVEMENT
 ============================================================ */
 let dotStates={};
-let animRaf=null,lastTs=null;
+let animRafs={},lastTs={};
 const SPEED_ROOM=5,SPEED_CORR=55,SPEED_DOOR=35;
 const IDLE_MIN=8000,IDLE_MAX=22000;
 let saveAccum=0;
@@ -1155,40 +1155,33 @@ function drawBondLines(fid){
     svg.appendChild(line);
   });
 }
-
 function startAnim(fid){
-  if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}
-  lastTs=null;saveAccum=0;
+  if(animRafs[fid]){cancelAnimationFrame(animRafs[fid]);animRafs[fid]=null;}
+  lastTs[fid]=null;saveAccum=0;
   const chars=ST.chars.filter(c=>c.floor===fid);
   function loop(ts){
-    if(!lastTs)lastTs=ts;
-    const dt=Math.min(ts-lastTs,100);lastTs=ts;
+    if(!lastTs[fid])lastTs[fid]=ts;
+    const dt=Math.min(ts-lastTs[fid],100);lastTs[fid]=ts;
     const container=document.getElementById('planInner');
-    if(!container){animRaf=null;return;}
+    if(!container){animRafs[fid]=null;return;}
     chars.forEach(char=>{
       const ds=dotStates[char.id];if(!ds)return;
       stepDot(char.id,ds,char,fid,dt);
-      const dotEl=document.getElementById('dot_'+char.id);
-      if(dotEl) dotEl.style.transform=`translate(${ds.x}px,${ds.y}px)`;
+      if(fid===ST.floor){
+        const dotEl=document.getElementById('dot_'+char.id);
+        if(dotEl) dotEl.style.transform=`translate(${ds.x}px,${ds.y}px)`;
+      }
     });
-    // Bond lines更新 + age増加
+    // Bond updates
     ST.bonds.forEach(b=>{b.age=(b.age||0)+dt;});
-    drawBondLines(fid);
-    // Broadcast step
-    stepBroadcast(dt);
-    // クジラ更新
+    if(fid===ST.floor) drawBondLines(fid);
+    // Whale updates
     stepWhale(dt);
-    const wEl=document.getElementById('whaleWrap');
-    if(wEl){
-      const vis=whale.phase==='swim'&&WHALE_FLOORS[whale.floorIdx]===fid;
-      wEl.style.opacity=vis?'1':'0';
-      if(vis) wEl.style.transform=`translate(${whale.x}px,${CCY}px)`;
-    }
     saveAccum+=dt;
     if(saveAccum>=15000&&mentalDirty){saveData();saveAccum=0;}
-    animRaf=requestAnimationFrame(loop);
+    animRafs[fid]=requestAnimationFrame(loop);
   }
-  animRaf=requestAnimationFrame(loop);
+  animRafs[fid]=requestAnimationFrame(loop);
 }
 
 /* ============================================================
@@ -1204,8 +1197,9 @@ function renderTabs(){
     return`<button class="floor-tab${fid===ST.floor?' active':''}${has?' has-chars':''}" onclick="switchFloor('${fid}')">${FLOOR_PLANS[fid].label}<span class="tdot"></span></button>`;
   }).join('');
 }
-function switchFloor(id){ST.floor=id;if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}render();}
-
+  
+function switchFloor(id){ST.floor=id;render();}
+  
 /* ============================================================
    ROOM PANEL
 ============================================================ */
@@ -1471,8 +1465,10 @@ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 /* ============================================================
    INIT
 ============================================================ */
-loadData();initStars();initWhale();initModal();render();
-window.addEventListener('resize',()=>{if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}buildFloorPlan(ST.floor);});
+loadData();initStars();initWhale();initModal();
+FLOOR_ORDER.forEach(fid=>startAnim(fid));
+render();
+window.addEventListener('resize',()=>{buildFloorPlan(ST.floor);});
 </script>
 
 </body>

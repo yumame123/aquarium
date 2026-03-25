@@ -842,6 +842,7 @@ function processMentalTick(id,ds,char,fid){
         if(ds.togetherTimer[cand.id]>=BOND_THRESHOLD){
           tryFormBond(char.id,cand.id);
           ds.togetherTimer={};
+          drawBondLines();
         }
       } else {
         ds.togetherTimer={};
@@ -978,6 +979,31 @@ function stepDot(id,ds,char,fid,dt){
       break;
     }
   }
+}
+
+function drawBondLines(){
+  const layer=document.getElementById('bondLinesLayer');
+  if(!layer) return;
+  
+  while(layer.firstChild) layer.removeChild(layer.firstChild);
+  
+  ST.bonds.forEach(bond=>{
+    const charA=ST.chars.find(c=>c.id===bond.a);
+    const charB=ST.chars.find(c=>c.id===bond.b);
+    if(!charA||!charB||charA.floor!==ST.floor||charB.floor!==ST.floor) return;
+    
+    const dsA=dotStates[charA.id];
+    const dsB=dotStates[charB.id];
+    if(!dsA||!dsB) return;
+    
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',dsA.x);
+    line.setAttribute('y1',dsA.y);
+    line.setAttribute('x2',dsB.x);
+    line.setAttribute('y2',dsB.y);
+    line.setAttribute('class','plan-bond-line');
+    layer.appendChild(line);
+  });
 }
 
 function moveTo(ds,tx,ty,md){

@@ -536,7 +536,7 @@ function initDotState(char){
 }
 
 /* ── Bond helpers ── */
-const BOND_THRESHOLD=55000;
+const BOND_THRESHOLD=15000;
 
 function getBondObj(charId){return ST.bonds.find(b=>b.a===charId||b.b===charId)||null;}
 function getBondPartner(charId){

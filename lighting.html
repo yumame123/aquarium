@@ -988,8 +988,13 @@ function startAnim(fid){
     // Bond updates
     ST.bonds.forEach(b=>{b.age=(b.age||0)+dt;});
     if(fid===ST.floor) drawBondLines(fid);
+    
     // Whale updates
     stepWhale(dt);
+    if(fid===ST.floor){
+ 　 　const wEl=document.getElementById('whaleWrap');
+ 　　 if(wEl) wEl.style.transform=`translate(${whale.x}px,${CCY}px)`;
+    }
     saveAccum+=dt;
     if(saveAccum>=15000&&mentalDirty){saveData();saveAccum=0;}
     animRafs[fid]=requestAnimationFrame(loop);

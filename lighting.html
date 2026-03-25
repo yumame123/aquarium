@@ -576,7 +576,7 @@ function stepWhale(dt){
     }
     return;
   }
-  whale.x+=WHALE_SPEED*whale.dir*(dt/1000);
+  whale.x+=WHALE_SPEED*whale.dir*(dt/10000);
   const fid=WHALE_FLOORS[whale.floorIdx];
   const hasLS=HAS_LEFT_STAIRS.includes(fid);
   if(whale.dir===1&&whale.x>=WHALE_RIGHT_X){

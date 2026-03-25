@@ -599,6 +599,36 @@ function stepWhale(dt){
   });
 }
 
+  // クジラが来ている間のbond処理
+  if(whale.phase==='swim'){
+    const floorChars=ST.chars.filter(c=>c.floor===fid&&dotStates[c.id]);
+    // 同じ部屋に2人だけいて未bond → 即座にbond成立
+    const roomMap={};
+    floorChars.forEach(c=>{const r=(dotStates[c.id].currentRoom||{}).id;if(r){if(!roomMap[r])roomMap[r]=[];roomMap[r].push(c);}});
+    Object.values(roomMap).forEach(pair=>{
+      if(pair.length===2&&!hasBond(pair[0].id)&&!hasBond(pair[1].id)){
+        tryFormBond(pair[0].id,pair[1].id);
+      }
+    });
+    // bond相手と別部屋 → bond解除
+    ST.bonds.filter(b=>ST.chars.some(c=>c.id===b.a&&c.floor===fid)||ST.chars.some(c=>c.id===b.b&&c.floor===fid)).forEach(bond=>{
+      const cA=ST.chars.find(c=>c.id===bond.a);
+      const cB=ST.chars.find(c=>c.id===bond.b);
+      if(!cA||!cB) return;
+      if(cA.floor!==fid||cB.floor!==fid) return;
+      const dsA=dotStates[cA.id],dsB=dotStates[cB.id];
+      if(!dsA||!dsB) return;
+      const sameRm=dsA.currentRoom&&dsB.currentRoom&&dsA.currentRoom.id===dsB.currentRoom.id;
+      if(!sameRm){removeCharBond(bond.a);}
+      // 一緒にいるならメンタル回復
+      else{
+        [cA,cB].forEach(ch=>{
+          if(Math.random()<0.04){if(tryMentalChange(ch,1)) onMentalChange(ch);}
+        });
+      }
+    });
+  }
+
 function updateWhaleDot(){
   const wEl=document.getElementById('whaleWrap');if(!wEl)return;
   const vis=whale.phase==='swim'&&WHALE_FLOORS[whale.floorIdx]===ST.floor;

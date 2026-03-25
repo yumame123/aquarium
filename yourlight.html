@@ -1043,9 +1043,16 @@ function startAnim(fid){
       wEl.style.opacity=vis?'1':'0';
       if(vis) wEl.style.transform=`translate(${whale.x}px,${CCY}px)`;
     }
+      // 位置情報を定期的に保存（5秒ごと）
+    saveAccum+=dt;
+    if(saveAccum>=5000){
+      saveDotStates();
+      saveAccum=0;
+    }
+    
     // Periodic save for mental state
     saveAccum+=dt;
-    if(saveAccum>=15000&&mentalDirty){saveData();saveAccum=0;}
+    if(saveAccum>=5000&&mentalDirty){saveData();saveAccum=0;}
     animRaf=requestAnimationFrame(loop);
   }
   animRaf=requestAnimationFrame(loop);

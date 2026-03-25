@@ -355,7 +355,7 @@ function initStars(){
 let planScale=1;
 function calcScale(){planScale=(document.getElementById('mapArea').clientWidth-24)/PW;return planScale;}
 
-function buildFloorPlan(fid){
+function FloorPlan(fid){
   const fp=FLOOR_PLANS[fid];
   const chars=ST.chars.filter(c=>c.floor===fid);
   const sc=calcScale();
@@ -392,10 +392,10 @@ function buildFloorPlan(fid){
     fp.windows.bot.forEach(w=>{const ww=mk('div','plan-window');ww.style.cssText=`position:absolute;left:${w.x}px;top:${PH-3}px;width:18px;height:3px;background:rgba(255,200,80,0.14);border-top:1px solid rgba(255,200,80,0.25)`;inner.appendChild(ww);});
   }
   // Add this before rooms are rendered
-const bondLinesLayer=mk('svg','plan-bond-lines');
-bondLinesLayer.setAttribute('viewBox',`0 0 ${PW} ${PH}`);
-bondLinesLayer.id='bondLinesLayer';
-inner.appendChild(bondLinesLayer);
+   const bondLinesLayer=mk('svg','plan-bond-lines');
+   bondLinesLayer.setAttribute('viewBox',`0 0 ${PW} ${PH}`);
+   bondLinesLayer.id='bondLinesLayer';
+   inner.appendChild(bondLinesLayer);
 
   // Rooms
   fp.rooms.forEach(room=>{

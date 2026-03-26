@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ノベルゲームメーカー</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Source+Code+Pro:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap');
+
+:root {
+–bg: #0d0f14;
+–panel: #13161d;
+–panel2: #1a1e28;
+–border: #2a2f3e;
+–accent: #7c9ef5;
+–accent2: #e87b7b;
+–accent3: #6fcf8e;
+–text: #c8cfe0;
+–text2: #7a8099;
+–error: #e87b7b;
+–radius: 8px;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Zen Kaku Gothic New’, sans-serif;
+height: 100vh;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+header {
+background: var(–panel);
+border-bottom: 1px solid var(–border);
+padding: 10px 20px;
+display: flex;
+align-items: center;
+gap: 16px;
+flex-shrink: 0;
+}
+
+header h1 {
+font-family: ‘Noto Serif JP’, serif;
+font-size: 18px;
+color: var(–accent);
+letter-spacing: 0.1em;
+}
+
+.run-btn {
+margin-left: auto;
+background: var(–accent);
+color: #0d0f14;
+border: none;
+padding: 8px 22px;
+border-radius: 20px;
+font-family: ‘Zen Kaku Gothic New’, sans-serif;
+font-size: 14px;
+font-weight: 700;
+cursor: pointer;
+transition: opacity .2s;
+}
+.run-btn:hover { opacity: .8; }
+
+.main {
+display: grid;
+grid-template-columns: 280px 1fr 340px;
+grid-template-rows: 1fr;
+flex: 1;
+overflow: hidden;
+gap: 0;
+}
+
+/* ===== 設定パネル ===== */
+.settings-panel {
+background: var(–panel);
+border-right: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+.tab-bar {
+display: flex;
+border-bottom: 1px solid var(–border);
+flex-shrink: 0;
+}
+
+.tab {
+flex: 1;
+padding: 10px;
+text-align: center;
+font-size: 13px;
+cursor: pointer;
+color: var(–text2);
+border-bottom: 2px solid transparent;
+transition: all .2s;
+}
+
+.tab.active {
+color: var(–accent);
+border-bottom-color: var(–accent);
+}
+
+.tab-content {
+flex: 1;
+overflow-y: auto;
+padding: 14px;
+display: none;
+}
+
+.tab-content.active { display: block; }
+
+.section-label {
+font-size: 11px;
+color: var(–text2);
+text-transform: uppercase;
+letter-spacing: .1em;
+margin-bottom: 8px;
+}
+
+.add-btn {
+width: 100%;
+background: var(–panel2);
+border: 1px dashed var(–border);
+color: var(–accent);
+padding: 8px;
+border-radius: var(–radius);
+cursor: pointer;
+font-size: 13px;
+margin-bottom: 12px;
+transition: background .2s;
+}
+.add-btn:hover { background: #1f2535; }
+
+.char-card, .scene-card {
+background: var(–panel2);
+border: 1px solid var(–border);
+border-radius: var(–radius);
+padding: 10px;
+margin-bottom: 10px;
+}
+
+.char-card input, .scene-card input {
+width: 100%;
+background: var(–bg);
+border: 1px solid var(–border);
+color: var(–text);
+padding: 6px 8px;
+border-radius: 4px;
+font-size: 13px;
+margin-bottom: 6px;
+font-family: inherit;
+}
+
+.char-card input:focus, .scene-card input:focus {
+outline: none;
+border-color: var(–accent);
+}
+
+.diff-list { margin-top: 6px; }
+
+.diff-item {
+display: flex;
+align-items: center;
+gap: 6px;
+margin-bottom: 4px;
+font-size: 12px;
+color: var(–text2);
+}
+
+.img-preview {
+width: 40px;
+height: 40px;
+border-radius: 4px;
+object-fit: cover;
+background: var(–border);
+border: 1px solid var(–border);
+}
+
+.img-placeholder {
+width: 40px;
+height: 40px;
+border-radius: 4px;
+background: var(–border);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+cursor: pointer;
+flex-shrink: 0;
+border: 1px dashed var(–text2);
+}
+
+.small-btn {
+background: none;
+border: 1px solid var(–border);
+color: var(–text2);
+padding: 3px 8px;
+border-radius: 4px;
+cursor: pointer;
+font-size: 11px;
+transition: all .2s;
+}
+.small-btn:hover { border-color: var(–accent); color: var(–accent); }
+
+.del-btn {
+background: none;
+border: none;
+color: var(–text2);
+cursor: pointer;
+font-size: 14px;
+padding: 0 4px;
+margin-left: auto;
+}
+.del-btn:hover { color: var(–error); }
+
+/* ===== エディター ===== */
+.editor-panel {
+display: flex;
+flex-direction: column;
+overflow: hidden;
+border-right: 1px solid var(–border);
+}
+
+.editor-header {
+background: var(–panel);
+padding: 8px 14px;
+font-size: 12px;
+color: var(–text2);
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+gap: 10px;
+flex-shrink: 0;
+}
+
+.editor-wrap {
+flex: 1;
+display: flex;
+overflow: hidden;
+position: relative;
+font-family: ‘Source Code Pro’, monospace;
+font-size: 14px;
+line-height: 1.7;
+}
+
+.line-nums {
+background: var(–panel);
+color: var(–text2);
+padding: 14px 10px;
+text-align: right;
+user-select: none;
+overflow: hidden;
+min-width: 44px;
+font-size: 13px;
+line-height: 1.7;
+}
+
+#editor {
+flex: 1;
+background: var(–bg);
+border: none;
+outline: none;
+color: var(–text);
+padding: 14px;
+resize: none;
+font-family: ‘Source Code Pro’, monospace;
+font-size: 14px;
+line-height: 1.7;
+overflow-y: auto;
+white-space: pre;
+overflow-x: auto;
+}
+
+/* エラー表示はオーバーレイで */
+.editor-overlay {
+position: absolute;
+top: 0;
+left: 44px;
+right: 0;
+bottom: 0;
+pointer-events: none;
+padding: 14px;
+font-family: ‘Source Code Pro’, monospace;
+font-size: 14px;
+line-height: 1.7;
+white-space: pre;
+overflow: hidden;
+color: transparent;
+}
+
+.error-line {
+color: var(–error) !important;
+text-decoration: underline wavy var(–error);
+}
+
+/* ===== プレビュー ===== */
+.preview-panel {
+background: var(–panel);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+.preview-header {
+padding: 8px 14px;
+font-size: 12px;
+color: var(–text2);
+border-bottom: 1px solid var(–border);
+flex-shrink: 0;
+}
+
+.preview-screen {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 16px;
+overflow: hidden;
+}
+
+.phone-frame {
+width: 260px;
+height: 460px;
+border: 2px solid var(–border);
+border-radius: 20px;
+background: #000;
+overflow: hidden;
+position: relative;
+cursor: pointer;
+box-shadow: 0 0 40px rgba(124,158,245,0.08);
+}
+
+.game-bg {
+width: 100%;
+height: 100%;
+background: #1a1020;
+position: absolute;
+top: 0; left: 0;
+display: flex;
+align-items: flex-end;
+justify-content: center;
+}
+
+.game-bg-img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+position: absolute;
+top: 0; left: 0;
+}
+
+.char-sprites {
+position: absolute;
+bottom: 120px;
+width: 100%;
+display: flex;
+justify-content: center;
+gap: -20px;
+}
+
+.char-sprite {
+height: 220px;
+object-fit: contain;
+filter: drop-shadow(0 4px 12px rgba(0,0,0,.6));
+transition: all .3s;
+}
+
+.text-box {
+position: absolute;
+bottom: 0;
+left: 0; right: 0;
+background: rgba(10,12,20,0.88);
+border-top: 1px solid rgba(124,158,245,0.2);
+padding: 12px 14px;
+min-height: 110px;
+}
+
+.char-name {
+font-size: 12px;
+color: var(–accent);
+margin-bottom: 4px;
+font-weight: 700;
+}
+
+.dialogue-text {
+font-size: 13px;
+line-height: 1.6;
+color: #dde;
+font-family: ‘Noto Serif JP’, serif;
+}
+
+.tap-hint {
+position: absolute;
+bottom: 10px;
+right: 14px;
+font-size: 10px;
+color: var(–text2);
+animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+0%,100% { opacity: 1; }
+50% { opacity: 0; }
+}
+
+.choices-box {
+position: absolute;
+bottom: 20px;
+left: 10px; right: 10px;
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+
+.choice-btn {
+background: rgba(124,158,245,0.15);
+border: 1px solid var(–accent);
+color: var(–accent);
+padding: 10px;
+border-radius: 8px;
+font-size: 12px;
+text-align: center;
+cursor: pointer;
+font-family: ‘Noto Serif JP’, serif;
+transition: background .2s;
+}
+.choice-btn:hover { background: rgba(124,158,245,0.3); }
+
+.game-ended {
+position: absolute;
+inset: 0;
+background: rgba(0,0,0,.8);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 16px;
+color: var(–text2);
+font-family: ‘Noto Serif JP’, serif;
+}
+
+/* スクロールバー */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border); border-radius: 3px; }
+
+.help-text {
+font-size: 11px;
+color: var(–text2);
+line-height: 1.6;
+margin-top: 6px;
+padding: 8px;
+background: var(–bg);
+border-radius: 4px;
+border: 1px solid var(–border);
+}
+
+.help-text code {
+color: var(–accent);
+font-family: ‘Source Code Pro’, monospace;
+}
+
+.card-header {
+display: flex;
+align-items: center;
+margin-bottom: 8px;
+font-size: 13px;
+font-weight: 700;
+}
+
+.status-dot {
+width: 8px; height: 8px;
+border-radius: 50%;
+background: var(–accent3);
+margin-right: 8px;
+flex-shrink: 0;
+}
+
+input[type=“file”] { display: none; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <h1>📖 ノベルゲームメーカー</h1>
+  <button class="run-btn" onclick="runGame()">▶ 実行</button>
+</header>
+
+<div class="main">
+  <!-- 設定パネル -->
+  <div class="settings-panel">
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('chars')">キャラクター</div>
+      <div class="tab" onclick="switchTab('scenes')">場面</div>
+    </div>
+
+```
+<div class="tab-content active" id="tab-chars">
+  <button class="add-btn" onclick="addCharacter()">＋ キャラクター追加</button>
+  <div id="char-list"></div>
+  <div class="help-text">
+    <code>〈名前〉セリフ</code><br>
+    <code>〈名前〉(登場)</code><br>
+    <code>〈名前〉(差分2)</code>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-scenes">
+  <button class="add-btn" onclick="addScene()">＋ 場面追加</button>
+  <div id="scene-list"></div>
+  <div class="help-text">
+    <code>◯場面名</code> で背景切替
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- エディター -->
+
+  <div class="editor-panel">
+    <div class="editor-header">
+      <span>スクリプトエディター</span>
+      <span id="error-count" style="color:var(--error); font-size:11px;"></span>
+    </div>
+    <div class="editor-wrap">
+      <div class="line-nums" id="line-nums">1</div>
+      <textarea id="editor" spellcheck="false" placeholder="スクリプトを入力してください...
+
+例:
+◯教室
+〈花子〉こんにちは！
+〈花子〉(登場)
+〈太郎〉やあ、花子。
+[選択肢A]/[選択肢B]
+〈選択肢A〉
+〈花子〉Aを選んだね。
+〈/選択肢A〉
+〈選択肢B〉
+〈花子〉Bを選んだね。
+〈/選択肢B〉” oninput=“onEditorInput()”></textarea>
+</div>
+
+  </div>
+
+  <!-- プレビュー -->
+
+  <div class="preview-panel">
+    <div class="preview-header">プレビュー（タップで進む）</div>
+    <div class="preview-screen">
+      <div class="phone-frame" id="phone-frame" onclick="nextStep()">
+        <div class="game-bg" id="game-bg">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#333;font-size:13px;">実行を押してください</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ データ ============
+let characters = [];
+let scenes = [];
+let charIdCounter = 0;
+let sceneIdCounter = 0;
+
+// ============ 設定タブ ============
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', (i === 0 && name === 'chars') || (i === 1 && name === 'scenes'));
+  });
+  document.getElementById('tab-chars').classList.toggle('active', name === 'chars');
+  document.getElementById('tab-scenes').classList.toggle('active', name === 'scenes');
+}
+
+function addCharacter() {
+  const id = ++charIdCounter;
+  const char = { id, name: '', images: [''], diffs: [] };
+  characters.push(char);
+  renderChars();
+}
+
+function renderChars() {
+  const el = document.getElementById('char-list');
+  el.innerHTML = '';
+  characters.forEach(char => {
+    const div = document.createElement('div');
+    div.className = 'char-card';
+    div.innerHTML = `
+      <div class="card-header">
+        <div class="status-dot"></div>
+        <span>キャラクター</span>
+        <button class="del-btn" onclick="deleteChar(${char.id})">✕</button>
+      </div>
+      <input type="text" placeholder="キャラクター名" value="${char.name}"
+        oninput="updateCharName(${char.id}, this.value)">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">通常画像</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        ${char.images[0] ? `<img class="img-preview" src="${char.images[0]}">` : `<div class="img-placeholder" onclick="triggerImgUpload(${char.id},0)">＋</div>`}
+        <button class="small-btn" onclick="triggerImgUpload(${char.id},0)">画像選択</button>
+        <input type="file" id="file-${char.id}-0" accept="image/*" onchange="handleImgUpload(${char.id},0,this)">
+      </div>
+      <div class="diff-list" id="diffs-${char.id}"></div>
+      <button class="small-btn" style="width:100%;" onclick="addDiff(${char.id})">＋ 差分追加</button>
+    `;
+    el.appendChild(div);
+    renderDiffs(char);
+  });
+}
+
+function renderDiffs(char) {
+  const el = document.getElementById('diffs-' + char.id);
+  if (!el) return;
+  el.innerHTML = '';
+  char.diffs.forEach((diff, idx) => {
+    const row = document.createElement('div');
+    row.className = 'diff-item';
+    row.innerHTML = `
+      <span>差分${idx+2}</span>
+      ${diff.img ? `<img class="img-preview" src="${diff.img}">` : `<div class="img-placeholder" onclick="triggerDiffUpload(${char.id},${idx})" style="width:32px;height:32px;font-size:14px;">＋</div>`}
+      <button class="small-btn" onclick="triggerDiffUpload(${char.id},${idx})">画像</button>
+      <input type="file" id="difffile-${char.id}-${idx}" accept="image/*" onchange="handleDiffUpload(${char.id},${idx},this)">
+      <button class="del-btn" onclick="deleteDiff(${char.id},${idx})">✕</button>
+    `;
+    el.appendChild(row);
+  });
+}
+
+function updateCharName(id, val) {
+  const c = characters.find(c => c.id === id);
+  if (c) c.name = val;
+}
+
+function deleteChar(id) {
+  characters = characters.filter(c => c.id !== id);
+  renderChars();
+}
+
+function triggerImgUpload(charId, idx) {
+  document.getElementById(`file-${charId}-${idx}`).click();
+}
+
+function handleImgUpload(charId, idx, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const c = characters.find(c => c.id === charId);
+    if (c) { c.images[idx] = e.target.result; renderChars(); }
+  };
+  reader.readAsDataURL(file);
+}
+
+function addDiff(charId) {
+  const c = characters.find(c => c.id === charId);
+  if (c) { c.diffs.push({ name: `差分${c.diffs.length+2}`, img: '' }); renderDiffs(c); }
+}
+
+function deleteDiff(charId, idx) {
+  const c = characters.find(c => c.id === charId);
+  if (c) { c.diffs.splice(idx, 1); renderDiffs(c); }
+}
+
+function triggerDiffUpload(charId, idx) {
+  document.getElementById(`difffile-${charId}-${idx}`).click();
+}
+
+function handleDiffUpload(charId, idx, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const c = characters.find(c => c.id === charId);
+    if (c && c.diffs[idx]) { c.diffs[idx].img = e.target.result; renderDiffs(c); }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== 場面 =====
+function addScene() {
+  const id = ++sceneIdCounter;
+  scenes.push({ id, name: '', img: '' });
+  renderScenes();
+}
+
+function renderScenes() {
+  const el = document.getElementById('scene-list');
+  el.innerHTML = '';
+  scenes.forEach(scene => {
+    const div = document.createElement('div');
+    div.className = 'scene-card';
+    div.innerHTML = `
+      <div class="card-header">
+        <div class="status-dot" style="background:var(--accent2)"></div>
+        <span>場面</span>
+        <button class="del-btn" onclick="deleteScene(${scene.id})">✕</button>
+      </div>
+      <input type="text" placeholder="場面名" value="${scene.name}"
+        oninput="updateSceneName(${scene.id}, this.value)">
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+        ${scene.img ? `<img class="img-preview" src="${scene.img}" style="width:60px;height:40px;">` : `<div class="img-placeholder" onclick="triggerSceneImg(${scene.id})" style="width:60px;height:40px;border-radius:4px;">＋</div>`}
+        <button class="small-btn" onclick="triggerSceneImg(${scene.id})">背景画像</button>
+        <input type="file" id="sceneimg-${scene.id}" accept="image/*" onchange="handleSceneImg(${scene.id},this)">
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function updateSceneName(id, val) {
+  const s = scenes.find(s => s.id === id);
+  if (s) s.name = val;
+}
+
+function deleteScene(id) {
+  scenes = scenes.filter(s => s.id !== id);
+  renderScenes();
+}
+
+function triggerSceneImg(id) {
+  document.getElementById('sceneimg-' + id).click();
+}
+
+function handleSceneImg(id, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const s = scenes.find(s => s.id === id);
+    if (s) { s.img = e.target.result; renderScenes(); }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============ エディター ============
+function onEditorInput() {
+  updateLineNums();
+  validateEditor();
+}
+
+function updateLineNums() {
+  const lines = document.getElementById('editor').value.split('\n');
+  document.getElementById('line-nums').textContent = lines.map((_,i) => i+1).join('\n');
+}
+
+// 構文検証
+const VALID_PATTERNS = [
+  /^〈[^〉]+〉.+$/,           // セリフ
+  /^〈[^〉]+〉\(登場\)$/,      // 登場
+  /^〈[^〉]+〉\(差分\d+\)$/,   // 差分
+  /^◯.+$/,                    // 場面
+  /^\[.+\]\/\[.+\]$/,         // 選択肢定義
+  /^〈[^/〉][^〉]*〉$/,        // 選択肢ブロック開始
+  /^〈\/[^〉]+〉$/,            // 選択肢ブロック終了
+  /^\s*$/,                    // 空行
+];
+
+function isValidLine(line) {
+  return VALID_PATTERNS.some(p => p.test(line));
+}
+
+function validateEditor() {
+  const text = document.getElementById('editor').value;
+  const lines = text.split('\n');
+  let errorCount = 0;
+  lines.forEach(line => {
+    if (!isValidLine(line)) errorCount++;
+  });
+  const ec = document.getElementById('error-count');
+  ec.textContent = errorCount > 0 ? `エラー: ${errorCount}行` : '';
+}
+
+// ============ スクリプトパーサー ============
+function parseScript(text) {
+  const lines = text.split('\n').filter(l => l.trim() !== '');
+  const steps = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+
+    // 場面変更
+    if (/^◯.+$/.test(line)) {
+      steps.push({ type: 'scene', name: line.slice(1) });
+      i++; continue;
+    }
+
+    // 選択肢定義
+    const choiceMatch = line.match(/^\[(.+)\]\/\[(.+)\]$/);
+    if (choiceMatch) {
+      const choices = [choiceMatch[1], choiceMatch[2]];
+      const branches = {};
+      i++;
+      // 各選択肢のブロックを読む
+      while (i < lines.length) {
+        const bl = lines[i].trim();
+        const openMatch = bl.match(/^〈([^/〉][^〉]*)〉$/);
+        if (openMatch) {
+          const key = openMatch[1];
+          const branchLines = [];
+          i++;
+          while (i < lines.length) {
+            const cl = lines[i].trim();
+            if (cl === `〈/${key}〉`) { i++; break; }
+            branchLines.push(cl);
+            i++;
+          }
+          branches[key] = parseScript(branchLines.join('\n'));
+        } else {
+          break;
+        }
+      }
+      steps.push({ type: 'choice', choices, branches });
+      continue;
+    }
+
+    // キャラクター命令
+    const charMatch = line.match(/^〈([^〉]+)〉(.*)$/);
+    if (charMatch) {
+      const name = charMatch[1];
+      const rest = charMatch[2];
+      if (rest === '(登場)') {
+        steps.push({ type: 'enter', name });
+      } else if (/^\(差分(\d+)\)$/.test(rest)) {
+        const num = parseInt(rest.match(/\(差分(\d+)\)/)[1]);
+        steps.push({ type: 'diff', name, num });
+      } else if (rest) {
+        steps.push({ type: 'dialogue', name, text: rest });
+      }
+      i++; continue;
+    }
+
+    i++;
+  }
+  return steps;
+}
+
+// ============ ゲームエンジン ============
+let gameSteps = [];
+let gameIdx = 0;
+let activeSprites = {}; // name -> imgSrc
+let currentBg = '';
+let waitingChoice = false;
+
+function runGame() {
+  const text = document.getElementById('editor').value;
+  gameSteps = parseScript(text);
+  gameIdx = 0;
+  activeSprites = {};
+  currentBg = '';
+  waitingChoice = false;
+  renderGameFrame();
+  executeStep();
+}
+
+function nextStep() {
+  if (waitingChoice) return;
+  executeStep();
+}
+
+function executeStep() {
+  if (gameIdx >= gameSteps.length) {
+    showEnded();
+    return;
+  }
+  const step = gameSteps[gameIdx];
+  gameIdx++;
+
+  if (step.type === 'scene') {
+    const s = scenes.find(s => s.name === step.name);
+    currentBg = s ? s.img : '';
+    renderGameFrame();
+    executeStep(); // 場面切替は自動で次へ
+  } else if (step.type === 'enter') {
+    const c = characters.find(c => c.name === step.name);
+    activeSprites[step.name] = c && c.images[0] ? c.images[0] : null;
+    renderGameFrame();
+    executeStep();
+  } else if (step.type === 'diff') {
+    const c = characters.find(c => c.name === step.name);
+    if (c && c.diffs[step.num - 2]) {
+      activeSprites[step.name] = c.diffs[step.num - 2].img || c.images[0];
+    }
+    renderGameFrame();
+    executeStep();
+  } else if (step.type === 'dialogue') {
+    renderGameFrame(step.name, step.text);
+  } else if (step.type === 'choice') {
+    renderChoices(step);
+  }
+}
+
+function renderGameFrame(charName, dialogueText) {
+  const bg = document.getElementById('game-bg');
+  bg.innerHTML = '';
+
+  // 背景
+  if (currentBg) {
+    const img = document.createElement('img');
+    img.className = 'game-bg-img';
+    img.src = currentBg;
+    bg.appendChild(img);
+  } else {
+    const defBg = document.createElement('div');
+    defBg.style.cssText = 'position:absolute;inset:0;background:linear-gradient(160deg,#0d0820 0%,#1a1030 100%);';
+    bg.appendChild(defBg);
+  }
+
+  // スプライト
+  const sprites = document.createElement('div');
+  sprites.className = 'char-sprites';
+  Object.entries(activeSprites).forEach(([name, src]) => {
+    if (src) {
+      const img = document.createElement('img');
+      img.className = 'char-sprite';
+      img.src = src;
+      sprites.appendChild(img);
+    }
+  });
+  bg.appendChild(sprites);
+
+  // テキストボックス
+  if (dialogueText !== undefined) {
+    const box = document.createElement('div');
+    box.className = 'text-box';
+    if (charName) {
+      const nameEl = document.createElement('div');
+      nameEl.className = 'char-name';
+      nameEl.textContent = charName;
+      box.appendChild(nameEl);
+    }
+    const text = document.createElement('div');
+    text.className = 'dialogue-text';
+    text.textContent = dialogueText;
+    box.appendChild(text);
+    const hint = document.createElement('div');
+    hint.className = 'tap-hint';
+    hint.textContent = 'タップ ▶';
+    box.appendChild(hint);
+    bg.appendChild(box);
+  }
+}
+
+function renderChoices(step) {
+  waitingChoice = true;
+  const bg = document.getElementById('game-bg');
+
+  // 既存のテキストボックスを消す
+  const existing = bg.querySelector('.text-box');
+  if (existing) existing.remove();
+
+  const box = document.createElement('div');
+  box.className = 'choices-box';
+  step.choices.forEach(choice => {
+    const btn = document.createElement('div');
+    btn.className = 'choice-btn';
+    btn.textContent = choice;
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      waitingChoice = false;
+      // 選択肢のブランチへ
+      const branch = step.branches[choice] || [];
+      // 現在のstepsに挿入
+      gameSteps.splice(gameIdx, 0, ...branch);
+      renderGameFrame();
+      executeStep();
+    };
+    box.appendChild(btn);
+  });
+  bg.appendChild(box);
+}
+
+function showEnded() {
+  const bg = document.getElementById('game-bg');
+  bg.innerHTML = '';
+  if (currentBg) {
+    const img = document.createElement('img');
+    img.className = 'game-bg-img';
+    img.src = currentBg;
+    bg.appendChild(img);
+  }
+  const ended = document.createElement('div');
+  ended.className = 'game-ended';
+  ended.textContent = '— END —';
+  bg.appendChild(ended);
+}
+
+// 初期化
+updateLineNums();
+</script>
+
+</body>
+</html>

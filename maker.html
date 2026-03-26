@@ -9,24 +9,24 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Source+Code+Pro:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap');
 
 :root {
-–bg: #0d0f14;
-–panel: #13161d;
-–panel2: #1a1e28;
-–border: #2a2f3e;
-–accent: #7c9ef5;
-–accent2: #e87b7b;
-–accent3: #6fcf8e;
-–text: #c8cfe0;
-–text2: #7a8099;
-–error: #e87b7b;
-–radius: 8px;
+--bg: #0d0f14;
+--panel: #13161d;
+--panel2: #1a1e28;
+--border: #2a2f3e;
+--accent: #7c9ef5;
+--accent2: #e87b7b;
+--accent3: #6fcf8e;
+--text: #c8cfe0;
+--text2: #7a8099;
+--error: #e87b7b;
+--radius: 8px;
 }
 
 - { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-background: var(–bg);
-color: var(–text);
+background: var(--bg);
+color: var(--text);
 font-family: ‘Zen Kaku Gothic New’, sans-serif;
 height: 100vh;
 display: flex;
@@ -35,8 +35,8 @@ overflow: hidden;
 }
 
 header {
-background: var(–panel);
-border-bottom: 1px solid var(–border);
+background: var(--panel);
+border-bottom: 1px solid var(--border);
 padding: 10px 20px;
 display: flex;
 align-items: center;
@@ -47,13 +47,13 @@ flex-shrink: 0;
 header h1 {
 font-family: ‘Noto Serif JP’, serif;
 font-size: 18px;
-color: var(–accent);
+color: var(--accent);
 letter-spacing: 0.1em;
 }
 
 .run-btn {
 margin-left: auto;
-background: var(–accent);
+background: var(--accent);
 color: #0d0f14;
 border: none;
 padding: 8px 22px;
@@ -77,8 +77,8 @@ gap: 0;
 
 /* ===== 設定パネル ===== */
 .settings-panel {
-background: var(–panel);
-border-right: 1px solid var(–border);
+background: var(--panel);
+border-right: 1px solid var(--border);
 display: flex;
 flex-direction: column;
 overflow: hidden;
@@ -86,7 +86,7 @@ overflow: hidden;
 
 .tab-bar {
 display: flex;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid var(--border);
 flex-shrink: 0;
 }
 
@@ -96,14 +96,14 @@ padding: 10px;
 text-align: center;
 font-size: 13px;
 cursor: pointer;
-color: var(–text2);
+color: var(--text2);
 border-bottom: 2px solid transparent;
 transition: all .2s;
 }
 
 .tab.active {
-color: var(–accent);
-border-bottom-color: var(–accent);
+color: var(--accent);
+border-bottom-color: var(--accent);
 }
 
 .tab-content {
@@ -117,7 +117,7 @@ display: none;
 
 .section-label {
 font-size: 11px;
-color: var(–text2);
+color: var(--text2);
 text-transform: uppercase;
 letter-spacing: .1em;
 margin-bottom: 8px;
@@ -125,11 +125,11 @@ margin-bottom: 8px;
 
 .add-btn {
 width: 100%;
-background: var(–panel2);
-border: 1px dashed var(–border);
-color: var(–accent);
+background: var(--panel2);
+border: 1px dashed var(--border);
+color: var(--accent);
 padding: 8px;
-border-radius: var(–radius);
+border-radius: var(--radius);
 cursor: pointer;
 font-size: 13px;
 margin-bottom: 12px;
@@ -138,18 +138,18 @@ transition: background .2s;
 .add-btn:hover { background: #1f2535; }
 
 .char-card, .scene-card {
-background: var(–panel2);
-border: 1px solid var(–border);
-border-radius: var(–radius);
+background: var(--panel2);
+border: 1px solid var(--border);
+border-radius: var(--radius);
 padding: 10px;
 margin-bottom: 10px;
 }
 
 .char-card input, .scene-card input {
 width: 100%;
-background: var(–bg);
-border: 1px solid var(–border);
-color: var(–text);
+background: var(--bg);
+border: 1px solid var(--border);
+color: var(--text);
 padding: 6px 8px;
 border-radius: 4px;
 font-size: 13px;
@@ -159,7 +159,7 @@ font-family: inherit;
 
 .char-card input:focus, .scene-card input:focus {
 outline: none;
-border-color: var(–accent);
+border-color: var(--accent);
 }
 
 .diff-list { margin-top: 6px; }
@@ -170,7 +170,7 @@ align-items: center;
 gap: 6px;
 margin-bottom: 4px;
 font-size: 12px;
-color: var(–text2);
+color: var(--text2);
 }
 
 .img-preview {
@@ -178,61 +178,61 @@ width: 40px;
 height: 40px;
 border-radius: 4px;
 object-fit: cover;
-background: var(–border);
-border: 1px solid var(–border);
+background: var(--border);
+border: 1px solid var(--border);
 }
 
 .img-placeholder {
 width: 40px;
 height: 40px;
 border-radius: 4px;
-background: var(–border);
+background: var(--border);
 display: flex;
 align-items: center;
 justify-content: center;
 font-size: 18px;
 cursor: pointer;
 flex-shrink: 0;
-border: 1px dashed var(–text2);
+border: 1px dashed var(--text2);
 }
 
 .small-btn {
 background: none;
-border: 1px solid var(–border);
-color: var(–text2);
+border: 1px solid var(--border);
+color: var(--text2);
 padding: 3px 8px;
 border-radius: 4px;
 cursor: pointer;
 font-size: 11px;
 transition: all .2s;
 }
-.small-btn:hover { border-color: var(–accent); color: var(–accent); }
+.small-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .del-btn {
 background: none;
 border: none;
-color: var(–text2);
+color: var(--text2);
 cursor: pointer;
 font-size: 14px;
 padding: 0 4px;
 margin-left: auto;
 }
-.del-btn:hover { color: var(–error); }
+.del-btn:hover { color: var(--error); }
 
 /* ===== エディター ===== */
 .editor-panel {
 display: flex;
 flex-direction: column;
 overflow: hidden;
-border-right: 1px solid var(–border);
+border-right: 1px solid var(--border);
 }
 
 .editor-header {
-background: var(–panel);
+background: var(--panel);
 padding: 8px 14px;
 font-size: 12px;
-color: var(–text2);
-border-bottom: 1px solid var(–border);
+color: var(--text2);
+border-bottom: 1px solid var(--border);
 display: flex;
 align-items: center;
 gap: 10px;
@@ -250,8 +250,8 @@ line-height: 1.7;
 }
 
 .line-nums {
-background: var(–panel);
-color: var(–text2);
+background: var(--panel);
+color: var(--text2);
 padding: 14px 10px;
 text-align: right;
 user-select: none;
@@ -263,10 +263,10 @@ line-height: 1.7;
 
 #editor {
 flex: 1;
-background: var(–bg);
+background: var(--bg);
 border: none;
 outline: none;
-color: var(–text);
+color: var(--text);
 padding: 14px;
 resize: none;
 font-family: ‘Source Code Pro’, monospace;
@@ -295,13 +295,13 @@ color: transparent;
 }
 
 .error-line {
-color: var(–error) !important;
-text-decoration: underline wavy var(–error);
+color: var(--error) !important;
+text-decoration: underline wavy var(--error);
 }
 
 /* ===== プレビュー ===== */
 .preview-panel {
-background: var(–panel);
+background: var(--panel);
 display: flex;
 flex-direction: column;
 overflow: hidden;
@@ -310,8 +310,8 @@ overflow: hidden;
 .preview-header {
 padding: 8px 14px;
 font-size: 12px;
-color: var(–text2);
-border-bottom: 1px solid var(–border);
+color: var(--text2);
+border-bottom: 1px solid var(--border);
 flex-shrink: 0;
 }
 
@@ -328,7 +328,7 @@ overflow: hidden;
 .phone-frame {
 width: 260px;
 height: 460px;
-border: 2px solid var(–border);
+border: 2px solid var(--border);
 border-radius: 20px;
 background: #000;
 overflow: hidden;
@@ -384,7 +384,7 @@ min-height: 110px;
 
 .char-name {
 font-size: 12px;
-color: var(–accent);
+color: var(--accent);
 margin-bottom: 4px;
 font-weight: 700;
 }
@@ -401,7 +401,7 @@ position: absolute;
 bottom: 10px;
 right: 14px;
 font-size: 10px;
-color: var(–text2);
+color: var(--text2);
 animation: blink 1.2s infinite;
 }
 
@@ -421,8 +421,8 @@ gap: 8px;
 
 .choice-btn {
 background: rgba(124,158,245,0.15);
-border: 1px solid var(–accent);
-color: var(–accent);
+border: 1px solid var(--accent);
+color: var(--accent);
 padding: 10px;
 border-radius: 8px;
 font-size: 12px;
@@ -441,28 +441,28 @@ display: flex;
 align-items: center;
 justify-content: center;
 font-size: 16px;
-color: var(–text2);
+color: var(--text2);
 font-family: ‘Noto Serif JP’, serif;
 }
 
 /* スクロールバー */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(–border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 .help-text {
 font-size: 11px;
-color: var(–text2);
+color: var(--text2);
 line-height: 1.6;
 margin-top: 6px;
 padding: 8px;
-background: var(–bg);
+background: var(--bg);
 border-radius: 4px;
-border: 1px solid var(–border);
+border: 1px solid var(--border);
 }
 
 .help-text code {
-color: var(–accent);
+color: var(--accent);
 font-family: ‘Source Code Pro’, monospace;
 }
 
@@ -477,7 +477,7 @@ font-weight: 700;
 .status-dot {
 width: 8px; height: 8px;
 border-radius: 50%;
-background: var(–accent3);
+background: var(--accent3);
 margin-right: 8px;
 flex-shrink: 0;
 }

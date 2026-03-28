@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovelCraft — ノベルゲームエディター</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Zen+Kaku+Gothic+New:wght@400;700&family=M+PLUS+1p:wght@300;400;700&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2130;
+    --surface3: #252a3a;
+    --accent: #7c6af7;
+    --accent2: #e85d9c;
+    --accent3: #4fd1c5;
+    --text: #e8eaf2;
+    --text-dim: #8b90a8;
+    --text-muted: #4a4f6a;
+    --border: #2a2f45;
+    --bubble-user: #2d3456;
+    --bubble-cmd: #1a2a1a;
+    --bubble-cmd-border: #2a4a2a;
+    --cmd-green: #4ade80;
+    --cmd-blue: #60a5fa;
+    --cmd-yellow: #fbbf24;
+    --cmd-pink: #f472b6;
+    --cmd-red: #f87171;
+    --radius: 14px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .logo {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.05em;
+  }
+  .logo span { font-weight: 300; }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  .btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border: none; border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(124,106,247,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(124,106,247,0.6); }
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--surface3); color: var(--text); }
+
+  /* ── Main Layout ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Left Panel: Asset Manager ── */
+  .panel-left {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .panel-title {
+    padding: 12px 14px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .asset-section { border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  .asset-list { overflow-y: auto; flex: 1; }
+  
+  .asset-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 0;
+  }
+  .asset-item:hover { background: var(--surface2); }
+  .asset-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    background: var(--surface3);
+  }
+  .asset-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .asset-info { flex: 1; min-width: 0; }
+  .asset-name { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .asset-type { font-size: 10px; color: var(--text-muted); }
+  .asset-add {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    color: var(--accent);
+    font-size: 12px;
+    transition: background 0.15s;
+  }
+  .asset-add:hover { background: var(--surface2); }
+
+  .bg-thumb {
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    background: var(--surface3);
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .bg-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .bg-thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+  /* ── Center: Chat Editor ── */
+  .panel-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .chat-toolbar {
+    padding: 8px 16px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .cmd-tag {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    letter-spacing: 0.03em;
+  }
+  .cmd-tag:hover { transform: translateY(-1px); filter: brightness(1.2); }
+  .tag-enter { background: rgba(74,222,128,0.15); color: var(--cmd-green); border: 1px solid rgba(74,222,128,0.3); }
+  .tag-exit { background: rgba(248,113,113,0.15); color: var(--cmd-red); border: 1px solid rgba(248,113,113,0.3); }
+  .tag-dialog { background: rgba(96,165,250,0.15); color: var(--cmd-blue); border: 1px solid rgba(96,165,250,0.3); }
+  .tag-choice { background: rgba(251,191,36,0.15); color: var(--cmd-yellow); border: 1px solid rgba(251,191,36,0.3); }
+  .tag-bg { background: rgba(244,114,182,0.15); color: var(--cmd-pink); border: 1px solid rgba(244,114,182,0.3); }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .msg-row.deletable { cursor: pointer; }
+  .msg-row:hover .msg-delete { opacity: 1; }
+
+  .msg-bubble {
+    position: relative;
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 14px 14px 14px 4px;
+    font-size: 13px;
+    line-height: 1.6;
+    border: 1px solid transparent;
+  }
+
+  /* command bubbles */
+  .msg-cmd {
+    background: var(--bubble-cmd);
+    border-color: var(--bubble-cmd-border);
+  }
+  .msg-cmd .cmd-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .msg-cmd .cmd-content { color: var(--text-dim); font-size: 12px; }
+  .msg-cmd .cmd-content b { font-weight: 600; }
+
+  .msg-dialog {
+    background: var(--bubble-user);
+    border-color: rgba(96,165,250,0.2);
+  }
+  .msg-dialog .char-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--cmd-blue);
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .msg-icon {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--surface3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+    overflow: hidden;
+  }
+  .msg-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+  .msg-delete {
+    opacity: 0;
+    margin-left: auto;
+    align-self: center;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    transition: all 0.15s;
+  }
+  .msg-delete:hover { color: var(--cmd-red); }
+
+  .cmd-enter-label { color: var(--cmd-green); }
+  .cmd-exit-label { color: var(--cmd-red); }
+  .cmd-dialog-label { color: var(--cmd-blue); }
+  .cmd-choice-label { color: var(--cmd-yellow); }
+  .cmd-bg-label { color: var(--cmd-pink); }
+
+  .choice-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .choice-preview-item {
+    padding: 4px 10px;
+    background: rgba(251,191,36,0.1);
+    border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--cmd-yellow);
+  }
+
+  /* Chat Input */
+  .chat-input-area {
+    padding: 12px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .input-mode-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .mode-tab {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .mode-tab.active {
+    color: var(--text);
+    border-color: transparent;
+  }
+  .mode-tab[data-mode="dialog"].active { background: rgba(96,165,250,0.2); color: var(--cmd-blue); border-color: rgba(96,165,250,0.3); }
+  .mode-tab[data-mode="enter"].active { background: rgba(74,222,128,0.2); color: var(--cmd-green); border-color: rgba(74,222,128,0.3); }
+  .mode-tab[data-mode="exit"].active { background: rgba(248,113,113,0.2); color: var(--cmd-red); border-color: rgba(248,113,113,0.3); }
+  .mode-tab[data-mode="choice"].active { background: rgba(251,191,36,0.2); color: var(--cmd-yellow); border-color: rgba(251,191,36,0.3); }
+  .mode-tab[data-mode="bg"].active { background: rgba(244,114,182,0.2); color: var(--cmd-pink); border-color: rgba(244,114,182,0.3); }
+
+  .input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  .form-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .form-select, .form-input, .form-textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-select:focus, .form-input:focus, .form-textarea:focus {
+    border-color: var(--accent);
+  }
+  .form-textarea {
+    resize: none;
+    min-height: 60px;
+    line-height: 1.5;
+  }
+  .form-select option { background: var(--surface2); }
+
+  .send-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+  .send-btn:hover { transform: scale(1.08); box-shadow: 0 0 14px rgba(124,106,247,0.5); }
+
+  .choice-inputs { display: flex; flex-direction: column; gap: 6px; }
+  .choice-row { display: flex; gap: 6px; align-items: center; }
+  .choice-row .form-input { flex: 1; }
+  .remove-choice { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 4px; }
+  .remove-choice:hover { color: var(--cmd-red); }
+  .add-choice-btn {
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 6px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.15s;
+  }
+  .add-choice-btn:hover { border-color: var(--cmd-yellow); color: var(--cmd-yellow); }
+
+  .empty-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    gap: 12px;
+    pointer-events: none;
+  }
+  .empty-chat .icon { font-size: 40px; opacity: 0.4; }
+  .empty-chat p { font-size: 13px; text-align: center; line-height: 1.6; }
+
+  /* ── Game Preview Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .game-window {
+    width: 800px;
+    height: 560px;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 80px rgba(124,106,247,0.3), 0 0 0 1px rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .game-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a1030, #0d1a2d);
+    transition: background 0.6s;
+    z-index: 0;
+  }
+  .game-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: opacity 0.6s;
+  }
+
+  .game-characters {
+    position: absolute;
+    bottom: 140px;
+    left: 0; right: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 20px;
+    z-index: 1;
+  }
+  .game-char {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    transform: translateY(0);
+  }
+  .game-char.entering { animation: charEnter 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+  .game-char.exiting { animation: charExit 0.4s ease-in forwards; }
+  @keyframes charEnter {
+    from { opacity: 0; transform: translateY(30px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes charExit {
+    to { opacity: 0; transform: translateY(20px) scale(0.9); }
+  }
+  .game-char-avatar {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    overflow: hidden;
+  }
+  .game-char-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .game-char-name {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.4);
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+
+  .game-dialog-box {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 140px;
+    background: rgba(10,8,20,0.92);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 20px 16px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .game-speaker {
+    font-size: 13px;
+    font-weight: 700;
+    color: #a8d8ff;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    min-height: 18px;
+  }
+  .game-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.9);
+    flex: 1;
+    font-family: 'M PLUS 1p', sans-serif;
+    font-weight: 300;
+  }
+  .game-prompt {
+    align-self: flex-end;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    animation: blink 1.2s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  .game-choices {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px;
+    background: rgba(10,8,20,0.95);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    display: none;
+  }
+  .game-choices.visible { display: flex; }
+  .game-choice-btn {
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.85);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .game-choice-btn:hover {
+    background: rgba(124,106,247,0.2);
+    border-color: rgba(124,106,247,0.5);
+    color: #fff;
+    transform: translateX(4px);
+  }
+
+  .game-close {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .game-close:hover { background: rgba(200,50,50,0.6); color: #fff; }
+
+  /* Asset Modal */
+  .asset-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .asset-modal.open { display: flex; }
+  .asset-modal-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: 380px;
+    box-shadow: var(--shadow);
+  }
+  .asset-modal-title {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+  .asset-modal-body { display: flex; flex-direction: column; gap: 14px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  .emoji-btn {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .emoji-btn:hover, .emoji-btn.selected { background: var(--accent); border-color: var(--accent); }
+
+  .url-input-group { display: flex; flex-direction: column; gap: 6px; }
+  .or-divider { text-align: center; color: var(--text-muted); font-size: 11px; position: relative; }
+  .or-divider::before, .or-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%; width: 40%;
+    height: 1px;
+    background: var(--border);
+  }
+  .or-divider::before { left: 0; }
+  .or-divider::after { right: 0; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Notification */
+  .notification {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 999;
+    transform: translateY(60px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .notification.show { transform: translateY(0); opacity: 1; }
+
+  .char-active-indicator {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cmd-green);
+    flex-shrink: 0;
+    box-shadow: 0 0 6px var(--cmd-green);
+  }
+
+  input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">Novel<span>Craft</span></div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="clearScript()">🗑 クリア</button>
+    <button class="btn btn-primary" onclick="runGame()">▶ 実行</button>
+  </div>
+</header>
+
+<div class="main">
+  <!-- Left Panel -->
+  <div class="panel-left">
+    <div class="asset-section">
+      <div class="panel-title">キャラクター</div>
+      <div id="charList"></div>
+      <div class="asset-add" onclick="openCharModal()">
+        <span>＋</span><span style="font-size:12px">キャラを追加</span>
+      </div>
+    </div>
+    <div class="asset-section">
+      <div class="panel-title">背景</div>
+      <div id="bgList"></div>
+      <div class="asset-add" onclick="openBgModal()">
+        <span>＋</span><span style="font-size:12px">背景を追加</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Chat Editor -->
+  <div class="panel-center">
+    <div class="chat-toolbar">
+      <span style="font-size:11px;color:var(--text-muted);margin-right:4px;">追加:</span>
+      <button class="cmd-tag tag-enter" onclick="setMode('enter')">登場</button>
+      <button class="cmd-tag tag-exit" onclick="setMode('exit')">退場</button>
+      <button class="cmd-tag tag-dialog" onclick="setMode('dialog')">会話</button>
+      <button class="cmd-tag tag-choice" onclick="setMode('choice')">選択肢</button>
+      <button class="cmd-tag tag-bg" onclick="setMode('bg')">背景変更</button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="empty-chat" id="emptyHint">
+        <div class="icon">✍️</div>
+        <p>下のパネルからコマンドを追加して<br>ノベルゲームを作ろう</p>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="chat-input-area">
+      <div class="input-mode-tabs">
+        <button class="mode-tab active" data-mode="dialog" onclick="setMode('dialog')">💬 会話</button>
+        <button class="mode-tab" data-mode="enter" onclick="setMode('enter')">✨ 登場</button>
+        <button class="mode-tab" data-mode="exit" onclick="setMode('exit')">💨 退場</button>
+        <button class="mode-tab" data-mode="choice" onclick="setMode('choice')">🔀 選択肢</button>
+        <button class="mode-tab" data-mode="bg" onclick="setMode('bg')">🖼 背景</button>
+      </div>
+
+      <!-- Dialog form -->
+      <div id="form-dialog" class="input-form">
+        <div class="input-row">
+          <div class="form-group" style="max-width:140px">
+            <div class="form-label">キャラクター</div>
+            <select class="form-select" id="dialogChar"></select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">セリフ</div>
+            <textarea class="form-textarea" id="dialogText" placeholder="セリフを入力..." rows="2"></textarea>
+          </div>
+          <button class="send-btn" onclick="addCmd()">➤</button>
+        </div>
+      </div>
+
+      <!-- Enter form -->
+      <div id="form-enter" class="input-form" style="display:none">
+        <div class="input-row">
+          <div class="form-group">
+            <div class="form-label">登場させるキャラクター</div>
+            <select class="form-select" id="enterChar"></select>
+          </div>
+          <button class="send-btn" onclick="addCmd()">➤</button>
+        </div>
+      </div>
+
+      <!-- Exit form -->
+      <div id="form-exit" class="input-form" style="display:none">
+        <div class="input-row">
+          <div class="form-group">
+            <div class="form-label">退場させるキャラクター</div>
+            <select class="form-select" id="exitChar"></select>
+          </div>
+          <button class="send-btn" onclick="addCmd()">➤</button>
+        </div>
+      </div>
+
+      <!-- Choice form -->
+      <div id="form-choice" class="input-form" style="display:none">
+        <div class="form-label">選択肢を追加</div>
+        <div class="choice-inputs" id="choiceInputs">
+          <div class="choice-row">
+            <input class="form-input" type="text" placeholder="選択肢 1">
+            <button class="remove-choice" onclick="removeChoice(this)">×</button>
+          </div>
+          <div class="choice-row">
+            <input class="form-input" type="text" placeholder="選択肢 2">
+            <button class="remove-choice" onclick="removeChoice(this)">×</button>
+          </div>
+        </div>
+        <button class="add-choice-btn" onclick="addChoiceInput()">＋ 選択肢を追加</button>
+        <div class="input-row" style="margin-top:4px">
+          <div style="flex:1"></div>
+          <button class="send-btn" onclick="addCmd()">➤</button>
+        </div>
+      </div>
+
+      <!-- BG form -->
+      <div id="form-bg" class="input-form" style="display:none">
+        <div class="input-row">
+          <div class="form-group">
+            <div class="form-label">背景を選択</div>
+            <select class="form-select" id="bgSelect"></select>
+          </div>
+          <button class="send-btn" onclick="addCmd()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Game Preview Modal -->
+<div class="modal-overlay" id="gameModal">
+  <div class="game-window">
+    <div class="game-bg" id="gameBg">
+      <img id="gameBgImg" src="" style="display:none">
+    </div>
+    <div class="game-characters" id="gameCharacters"></div>
+    <div class="game-dialog-box" id="gameDialogBox">
+      <div class="game-speaker" id="gameSpeaker"></div>
+      <div class="game-text" id="gameText"></div>
+      <div class="game-prompt">▼</div>
+    </div>
+    <div class="game-choices" id="gameChoices"></div>
+    <button class="game-close" onclick="closeGame()">✕</button>
+  </div>
+</div>
+
+<!-- Character Modal -->
+<div class="asset-modal" id="charModal">
+  <div class="asset-modal-content">
+    <div class="asset-modal-title">✨ キャラクターを追加</div>
+    <div class="asset-modal-body">
+      <div class="form-group">
+        <div class="form-label">キャラクター名</div>
+        <input class="form-input" type="text" id="newCharName" placeholder="例：アリス">
+      </div>
+      <div class="form-label">アイコン（絵文字）</div>
+      <div class="emoji-grid" id="charEmojiGrid"></div>
+      <div class="or-divider">または画像URL</div>
+      <input class="form-input" type="text" id="newCharUrl" placeholder="https://example.com/avatar.png">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeCharModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveChar()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Background Modal -->
+<div class="asset-modal" id="bgModal">
+  <div class="asset-modal-content">
+    <div class="asset-modal-title">🖼 背景を追加</div>
+    <div class="asset-modal-body">
+      <div class="form-group">
+        <div class="form-label">背景名</div>
+        <input class="form-input" type="text" id="newBgName" placeholder="例：学校の教室">
+      </div>
+      <div class="form-label">背景アイコン（絵文字）</div>
+      <div class="emoji-grid" id="bgEmojiGrid"></div>
+      <div class="or-divider">または画像URL</div>
+      <input class="form-input" type="text" id="newBgUrl" placeholder="https://example.com/bg.jpg">
+      <div class="form-label" style="margin-top:4px">CSSグラデーション（空欄時）</div>
+      <input class="form-input" type="text" id="newBgGrad" placeholder="linear-gradient(135deg, #1a1030, #0d2a1d)">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeBgModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveBg()">追加</button>
+    </div>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script>
+// ── State ──
+let characters = [
+  { id: 'c1', name: '主人公', emoji: '🙂', url: '' },
+  { id: 'c2', name: 'ヒロイン', emoji: '🌸', url: '' },
+];
+let backgrounds = [
+  { id: 'bg1', name: '夕暮れの教室', emoji: '🏫', url: '', grad: 'linear-gradient(135deg, #3d1a00, #1a0d2e)' },
+  { id: 'bg2', name: '夜の街', emoji: '🌃', url: '', grad: 'linear-gradient(135deg, #060d1a, #0a1a30)' },
+];
+let script = []; // array of cmd objects
+let currentMode = 'dialog';
+let selectedCharEmoji = '🙂';
+let selectedBgEmoji = '🏫';
+let editingCharId = null;
+
+// ── Init ──
+function init() {
+  renderCharList();
+  renderBgList();
+  populateSelects();
+  renderEmojiGrids();
+}
+
+const charEmojis = ['🙂','😊','😄','😎','😍','🥰','😏','😮','😢','😤','🤔','😴','👶','👦','👧','🧑','👱','🧔','👩','👨','🧝','🧙','🧚','🧜','🦸','🦹','🤺','👮','🕵','👷','🤴','👸','🫅'];
+const bgEmojis = ['🏫','🌃','🌅','🌄','🌲','🏔','🌊','🏠','🏰','🌙','☀️','🌸','🏖','🌆','🌉','🌌','🏕','⛩','🎑','🌾'];
+
+function renderEmojiGrids() {
+  document.getElementById('charEmojiGrid').innerHTML = charEmojis.map(e =>
+    `<button class="emoji-btn${e===selectedCharEmoji?' selected':''}" onclick="selectCharEmoji('${e}')">${e}</button>`
+  ).join('');
+  document.getElementById('bgEmojiGrid').innerHTML = bgEmojis.map(e =>
+    `<button class="emoji-btn${e===selectedBgEmoji?' selected':''}" onclick="selectBgEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+
+function selectCharEmoji(e) {
+  selectedCharEmoji = e;
+  document.querySelectorAll('#charEmojiGrid .emoji-btn').forEach(b => b.classList.toggle('selected', b.textContent === e));
+}
+function selectBgEmoji(e) {
+  selectedBgEmoji = e;
+  document.querySelectorAll('#bgEmojiGrid .emoji-btn').forEach(b => b.classList.toggle('selected', b.textContent === e));
+}
+
+function renderCharList() {
+  const list = document.getElementById('charList');
+  list.innerHTML = characters.map(c => `
+    <div class="asset-item">
+      <div class="asset-avatar">${c.url ? `<img src="${c.url}">` : c.emoji}</div>
+      <div class="asset-info">
+        <div class="asset-name">${c.name}</div>
+        <div class="asset-type">キャラクター</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderBgList() {
+  const list = document.getElementById('bgList');
+  list.innerHTML = backgrounds.map(b => `
+    <div class="asset-item">
+      <div class="bg-thumb">${b.url ? `<img src="${b.url}">` : `<div class="bg-thumb-placeholder">${b.emoji}</div>`}</div>
+      <div class="asset-info">
+        <div class="asset-name">${b.name}</div>
+        <div class="asset-type">背景</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function populateSelects() {
+  const chars = characters.map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  document.getElementById('dialogChar').innerHTML = chars;
+  document.getElementById('enterChar').innerHTML = chars;
+  document.getElementById('exitChar').innerHTML = chars;
+  document.getElementById('bgSelect').innerHTML = backgrounds.map(b =>
+    `<option value="${b.id}">${b.emoji} ${b.name}</option>`
+  ).join('');
+}
+
+// ── Char Modal ──
+function openCharModal() {
+  selectedCharEmoji = '🙂';
+  renderEmojiGrids();
+  document.getElementById('newCharName').value = '';
+  document.getElementById('newCharUrl').value = '';
+  document.getElementById('charModal').classList.add('open');
+}
+function closeCharModal() { document.getElementById('charModal').classList.remove('open'); }
+function saveChar() {
+  const name = document.getElementById('newCharName').value.trim();
+  if (!name) return notify('名前を入力してください');
+  const url = document.getElementById('newCharUrl').value.trim();
+  characters.push({ id: 'c'+Date.now(), name, emoji: selectedCharEmoji, url });
+  renderCharList();
+  populateSelects();
+  closeCharModal();
+  notify('✨ キャラクターを追加しました');
+}
+
+// ── BG Modal ──
+function openBgModal() {
+  selectedBgEmoji = '🏫';
+  renderEmojiGrids();
+  document.getElementById('newBgName').value = '';
+  document.getElementById('newBgUrl').value = '';
+  document.getElementById('newBgGrad').value = '';
+  document.getElementById('bgModal').classList.add('open');
+}
+function closeBgModal() { document.getElementById('bgModal').classList.remove('open'); }
+function saveBg() {
+  const name = document.getElementById('newBgName').value.trim();
+  if (!name) return notify('名前を入力してください');
+  const url = document.getElementById('newBgUrl').value.trim();
+  const grad = document.getElementById('newBgGrad').value.trim();
+  backgrounds.push({ id: 'bg'+Date.now(), name, emoji: selectedBgEmoji, url, grad });
+  renderBgList();
+  populateSelects();
+  closeBgModal();
+  notify('🖼 背景を追加しました');
+}
+
+// ── Mode ──
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  document.querySelectorAll('[id^="form-"]').forEach(f => f.style.display = 'none');
+  document.getElementById('form-'+mode).style.display = 'flex';
+}
+
+// ── Add Command ──
+function addCmd() {
+  let cmd = { type: currentMode };
+  if (currentMode === 'dialog') {
+    const charId = document.getElementById('dialogChar').value;
+    const text = document.getElementById('dialogText').value.trim();
+    if (!text) return notify('セリフを入力してください');
+    cmd.charId = charId;
+    cmd.text = text;
+    document.getElementById('dialogText').value = '';
+  } else if (currentMode === 'enter') {
+    cmd.charId = document.getElementById('enterChar').value;
+  } else if (currentMode === 'exit') {
+    cmd.charId = document.getElementById('exitChar').value;
+  } else if (currentMode === 'choice') {
+    const inputs = document.querySelectorAll('#choiceInputs .form-input');
+    const choices = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
+    if (choices.length < 2) return notify('選択肢を2つ以上入力してください');
+    cmd.choices = choices;
+  } else if (currentMode === 'bg') {
+    cmd.bgId = document.getElementById('bgSelect').value;
+  }
+  script.push(cmd);
+  renderChat();
+}
+
+function addChoiceInput() {
+  const row = document.createElement('div');
+  row.className = 'choice-row';
+  const n = document.querySelectorAll('#choiceInputs .form-input').length + 1;
+  row.innerHTML = `<input class="form-input" type="text" placeholder="選択肢 ${n}"><button class="remove-choice" onclick="removeChoice(this)">×</button>`;
+  document.getElementById('choiceInputs').appendChild(row);
+}
+
+function removeChoice(btn) {
+  const rows = document.querySelectorAll('#choiceInputs .choice-row');
+  if (rows.length <= 2) return notify('最低2つ必要です');
+  btn.parentElement.remove();
+}
+
+function deleteCmd(idx) {
+  script.splice(idx, 1);
+  renderChat();
+}
+
+// ── Render Chat ──
+function renderChat() {
+  const container = document.getElementById('chatMessages');
+  const hint = document.getElementById('emptyHint');
+  if (script.length === 0) {
+    hint && (hint.style.display = 'flex');
+    const msgs = container.querySelectorAll('.msg-row');
+    msgs.forEach(m => m.remove());
+    return;
+  }
+  hint && (hint.style.display = 'none');
+
+  // rebuild
+  const existing = container.querySelectorAll('.msg-row');
+  existing.forEach(m => m.remove());
+
+  script.forEach((cmd, i) => {
+    const row = document.createElement('div');
+    row.className = 'msg-row deletable';
+
+    let iconHtml = '💬';
+    let bubble = '';
+
+    if (cmd.type === 'dialog') {
+      const char = characters.find(c => c.id === cmd.charId);
+      iconHtml = char ? (char.url ? `<img src="${char.url}">` : char.emoji) : '❓';
+      bubble = `
+        <div class="msg-bubble msg-dialog">
+          <div class="char-name">${char ? char.name : '?'}</div>
+          <div>${cmd.text}</div>
+        </div>`;
+    } else if (cmd.type === 'enter') {
+      const char = characters.find(c => c.id === cmd.charId);
+      iconHtml = '✨';
+      bubble = `
+        <div class="msg-bubble msg-cmd">
+          <div class="cmd-label cmd-enter-label">▶ 登場</div>
+          <div class="cmd-content"><b>${char ? char.name : '?'}</b> が登場します</div>
+        </div>`;
+    } else if (cmd.type === 'exit') {
+      const char = characters.find(c => c.id === cmd.charId);
+      iconHtml = '💨';
+      bubble = `
+        <div class="msg-bubble msg-cmd">
+          <div class="cmd-label cmd-exit-label">◀ 退場</div>
+          <div class="cmd-content"><b>${char ? char.name : '?'}</b> が退場します</div>
+        </div>`;
+    } else if (cmd.type === 'choice') {
+      iconHtml = '🔀';
+      bubble = `
+        <div class="msg-bubble msg-cmd">
+          <div class="cmd-label cmd-choice-label">⬡ 選択肢</div>
+          <div class="choice-preview">${cmd.choices.map(c => `<div class="choice-preview-item">▷ ${c}</div>`).join('')}</div>
+        </div>`;
+    } else if (cmd.type === 'bg') {
+      const bg = backgrounds.find(b => b.id === cmd.bgId);
+      iconHtml = '🖼';
+      bubble = `
+        <div class="msg-bubble msg-cmd">
+          <div class="cmd-label cmd-bg-label">🖼 背景変更</div>
+          <div class="cmd-content"><b>${bg ? bg.name : '?'}</b> に切り替えます</div>
+        </div>`;
+    }
+
+    row.innerHTML = `
+      <div class="msg-icon">${iconHtml}</div>
+      ${bubble}
+      <button class="msg-delete" onclick="deleteCmd(${i})">🗑</button>`;
+    container.appendChild(row);
+  });
+
+  container.scrollTop = container.scrollHeight;
+}
+
+function clearScript() {
+  if (script.length === 0) return;
+  if (!confirm('スクリプトをすべて削除しますか？')) return;
+  script = [];
+  renderChat();
+}
+
+// ── Game Engine ──
+let gameState = {};
+let gameScript = [];
+let gameIndex = 0;
+let typingTimer = null;
+
+function runGame() {
+  if (script.length === 0) return notify('コマンドを追加してください');
+  gameScript = JSON.parse(JSON.stringify(script));
+  gameIndex = 0;
+  gameState = { onStage: {}, currentBg: null };
+
+  // reset UI
+  document.getElementById('gameCharacters').innerHTML = '';
+  document.getElementById('gameSpeaker').textContent = '';
+  document.getElementById('gameText').textContent = '';
+  document.getElementById('gameChoices').classList.remove('visible');
+  document.getElementById('gameChoices').innerHTML = '';
+  document.getElementById('gameBgImg').style.display = 'none';
+  document.getElementById('gameBg').style.background = 'linear-gradient(135deg, #1a1030, #0d1a2d)';
+  document.getElementById('gameDialogBox').style.display = 'flex';
+
+  document.getElementById('gameModal').classList.add('open');
+
+  processNextCmd();
+}
+
+function closeGame() {
+  clearTimeout(typingTimer);
+  document.getElementById('gameModal').classList.remove('open');
+}
+
+function processNextCmd() {
+  if (gameIndex >= gameScript.length) {
+    document.getElementById('gameSpeaker').textContent = '— END —';
+    document.getElementById('gameText').textContent = 'ゲームが終了しました。';
+    return;
+  }
+  const cmd = gameScript[gameIndex++];
+
+  if (cmd.type === 'bg') {
+    const bg = backgrounds.find(b => b.id === cmd.bgId);
+    if (bg) {
+      const bgEl = document.getElementById('gameBg');
+      const imgEl = document.getElementById('gameBgImg');
+      if (bg.url) {
+        imgEl.src = bg.url;
+        imgEl.style.display = 'block';
+        bgEl.style.background = '#000';
+      } else {
+        imgEl.style.display = 'none';
+        bgEl.style.background = bg.grad || 'linear-gradient(135deg, #1a1030, #0d1a2d)';
+      }
+    }
+    processNextCmd();
+  } else if (cmd.type === 'enter') {
+    const char = characters.find(c => c.id === cmd.charId);
+    if (char && !gameState.onStage[char.id]) {
+      gameState.onStage[char.id] = char;
+      renderGameChars();
+    }
+    processNextCmd();
+  } else if (cmd.type === 'exit') {
+    const char = characters.find(c => c.id === cmd.charId);
+    if (char) {
+      delete gameState.onStage[char.id];
+      renderGameChars(char.id);
+    }
+    setTimeout(processNextCmd, 400);
+  } else if (cmd.type === 'dialog') {
+    const char = characters.find(c => c.id === cmd.charId);
+    document.getElementById('gameSpeaker').textContent = char ? char.name : '';
+    typeText(cmd.text);
+  } else if (cmd.type === 'choice') {
+    document.getElementById('gameDialogBox').style.display = 'none';
+    const choicesEl = document.getElementById('gameChoices');
+    choicesEl.innerHTML = cmd.choices.map((c, i) =>
+      `<button class="game-choice-btn" onclick="selectChoice(${i})">${c}</button>`
+    ).join('');
+    choicesEl.classList.add('visible');
+  }
+}
+
+function selectChoice(idx) {
+  document.getElementById('gameChoices').classList.remove('visible');
+  document.getElementById('gameChoices').innerHTML = '';
+  document.getElementById('gameDialogBox').style.display = 'flex';
+  processNextCmd();
+}
+
+function typeText(text) {
+  clearTimeout(typingTimer);
+  const el = document.getElementById('gameText');
+  el.textContent = '';
+  let i = 0;
+  const speed = 40;
+  function tick() {
+    if (i < text.length) {
+      el.textContent += text[i++];
+      typingTimer = setTimeout(tick, speed);
+    }
+  }
+  tick();
+}
+
+// Click dialog box to advance (after typing finishes)
+document.getElementById('gameDialogBox').addEventListener('click', () => {
+  const el = document.getElementById('gameText');
+  const currentCmd = gameScript[gameIndex - 1];
+  if (currentCmd && currentCmd.type === 'dialog') {
+    if (el.textContent.length < currentCmd.text.length) {
+      // skip typing
+      clearTimeout(typingTimer);
+      el.textContent = currentCmd.text;
+    } else {
+      processNextCmd();
+    }
+  }
+});
+
+function renderGameChars(exitingId = null) {
+  const container = document.getElementById('gameCharacters');
+  // mark exiting
+  if (exitingId) {
+    const existing = container.querySelector(`[data-char="${exitingId}"]`);
+    if (existing) existing.classList.add('exiting');
+    setTimeout(() => {
+      const e = container.querySelector(`[data-char="${exitingId}"]`);
+      if (e) e.remove();
+    }, 400);
+  }
+
+  // add new ones
+  Object.values(gameState.onStage).forEach(char => {
+    if (!container.querySelector(`[data-char="${char.id}"]`)) {
+      const el = document.createElement('div');
+      el.className = 'game-char entering';
+      el.dataset.char = char.id;
+      el.innerHTML = `
+        <div class="game-char-avatar">${char.url ? `<img src="${char.url}">` : char.emoji}</div>
+        <div class="game-char-name">${char.name}</div>`;
+      container.appendChild(el);
+    }
+  });
+}
+
+// ── Notify ──
+function notify(msg) {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+init();
+</script>
+</body>
+</html>

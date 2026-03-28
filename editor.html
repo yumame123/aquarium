@@ -900,6 +900,18 @@ function init() {
 const charEmojis = ['🙂','😊','😄','😎','😍','🥰','😏','😮','😢','😤','🤔','😴','👶','👦','👧','🧑','👱','🧔','👩','👨','🧝','🧙','🧚','🧜','🦸','🦹','🤺','👮','🕵','👷','🤴','👸','🫅'];
 const bgEmojis = ['🏫','🌃','🌅','🌄','🌲','🏔','🌊','🏠','🏰','🌙','☀️','🌸','🏖','🌆','🌉','🌌','🏕','⛩','🎑','🌾'];
 
+function previewCharImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('newCharPreview');
+    preview.src = e.target.result; // Base64
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+  
 function renderEmojiGrids() {
   document.getElementById('charEmojiGrid').innerHTML = charEmojis.map(e =>
     `<button class="emoji-btn${e===selectedCharEmoji?' selected':''}" onclick="selectCharEmoji('${e}')">${e}</button>`
@@ -1128,18 +1140,6 @@ function clearScript() {
   if (!confirm('スクリプトをすべて削除しますか？')) return;
   script = [];
   renderChat();
-}
-
-function previewCharImage(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const preview = document.getElementById('newCharPreview');
-    preview.src = e.target.result; // Base64
-    preview.style.display = 'block';
-  };
-  reader.readAsDataURL(file);
 }
 
 // ── Game Engine ──

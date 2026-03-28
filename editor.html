@@ -832,7 +832,9 @@
     <div class="asset-modal-body">
       <div class="form-group">
         <div class="form-label">キャラクター名</div>
-        <input class="form-input" type="text" id="newCharName" placeholder="例：アリス">
+        <input type="file" id="newCharFile" accept="image/*" onchange="previewCharImage(event)">
+        <label for="newCharFile" class="btn btn-ghost" style="cursor:pointer">📁 画像を選択</label>
+        <img id="newCharPreview" style="display:none;width:60px;height:60px;border-radius:50%;object-fit:cover;margin-top:8px"
       </div>
       <div class="form-label">アイコン（絵文字）</div>
       <div class="emoji-grid" id="charEmojiGrid"></div>
@@ -858,7 +860,7 @@
       <div class="form-label">背景アイコン（絵文字）</div>
       <div class="emoji-grid" id="bgEmojiGrid"></div>
       <div class="or-divider">または画像URL</div>
-      <input class="form-input" type="text" id="newBgUrl" placeholder="https://example.com/bg.jpg">
+      <input class="form-input" type="file" accept="image/*" id="newBgUrl" placeholder="https://example.com/bg.jpg">
       <div class="form-label" style="margin-top:4px">CSSグラデーション（空欄時）</div>
       <input class="form-input" type="text" id="newBgGrad" placeholder="linear-gradient(135deg, #1a1030, #0d2a1d)">
     </div>
@@ -1126,6 +1128,18 @@ function clearScript() {
   if (!confirm('スクリプトをすべて削除しますか？')) return;
   script = [];
   renderChat();
+}
+
+  function previewCharImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('newCharPreview');
+    preview.src = e.target.result; // Base64
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
 }
 
 // ── Game Engine ──

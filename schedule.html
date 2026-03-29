@@ -14,9 +14,7 @@
     --surface3: #22222f;
     --border: rgba(255,255,255,0.06);
     --border-light: rgba(255,255,255,0.12);
-
     --water: #4fc3f7;
-    --water-glow: rgba(79,195,247,0.15);
     --water-dim: rgba(79,195,247,0.08);
     --flow: #a78bfa;
     --flow-glow: rgba(167,139,250,0.15);
@@ -24,514 +22,317 @@
     --deep: #34d399;
     --deep-glow: rgba(52,211,153,0.15);
     --deep-dim: rgba(52,211,153,0.08);
-
     --text: #f0f0f5;
     --text-muted: rgba(240,240,245,0.45);
     --text-dim: rgba(240,240,245,0.25);
-
     --todo-accent: #f97316;
     --todo-dim: rgba(249,115,22,0.12);
-
     --radius: 20px;
     --radius-sm: 12px;
     --radius-xs: 8px;
-
-    --tab-h: 64px;
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  html, body {
-    height: 100%; width: 100%; overflow: hidden;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ── Layout ── */
-  #app {
-    display: flex; flex-direction: column;
-    height: 100dvh;
-  }
+  html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif; -webkit-font-smoothing: antialiased; }
+  #app { display: flex; flex-direction: column; height: 100dvh; }
 
   /* ── Header ── */
-  .header {
-    padding: 20px 20px 0;
-    flex-shrink: 0;
-  }
-  .header-inner {
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .header-title {
-    font-size: 11px; font-weight: 400; letter-spacing: 0.2em;
-    color: var(--text-dim); text-transform: uppercase;
-  }
-  .date-badge {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 11px; font-weight: 300;
-    color: var(--text-muted);
-    background: var(--surface2);
-    padding: 5px 12px; border-radius: 100px;
-    border: 1px solid var(--border);
-  }
+  .header { padding: 20px 20px 0; flex-shrink: 0; }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; }
+  .header-title { font-size: 11px; font-weight: 400; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase; }
+  .date-badge { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 300; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border); }
 
-  /* ── Tab bar ── */
-  .tabs {
-    display: flex; padding: 16px 20px 0; gap: 6px;
-    flex-shrink: 0;
-  }
-  .tab {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; gap: 4px;
-    padding: 10px 6px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    cursor: pointer;
-    transition: all 0.25s ease;
-    position: relative; overflow: hidden;
-  }
-  .tab::before {
-    content: ''; position: absolute; inset: 0;
-    opacity: 0; transition: opacity 0.25s;
-    border-radius: inherit;
-  }
+  /* ── Tabs ── */
+  .tabs { display: flex; padding: 16px 20px 0; gap: 6px; flex-shrink: 0; }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.25s ease; position: relative; overflow: hidden; }
+  .tab::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s; border-radius: inherit; }
   .tab[data-id="water"]::before { background: var(--water-dim); }
   .tab[data-id="flow"]::before  { background: var(--flow-dim); }
   .tab[data-id="deep"]::before  { background: var(--deep-dim); }
-
-  .tab.active { border-color: transparent; }
-  .tab[data-id="water"].active::before { opacity: 1; border: 1px solid rgba(79,195,247,0.3); }
-  .tab[data-id="flow"].active::before  { opacity: 1; border: 1px solid rgba(167,139,250,0.3); }
-  .tab[data-id="deep"].active::before  { opacity: 1; border: 1px solid rgba(52,211,153,0.3); }
   .tab[data-id="water"].active { border-color: rgba(79,195,247,0.3); }
   .tab[data-id="flow"].active  { border-color: rgba(167,139,250,0.3); }
   .tab[data-id="deep"].active  { border-color: rgba(52,211,153,0.3); }
-
+  .tab.active::before { opacity: 1; }
   .tab-icon { font-size: 18px; line-height: 1; }
-  .tab-label {
-    font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
-    color: var(--text-dim); transition: color 0.25s;
-  }
+  .tab-label { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-dim); transition: color 0.25s; }
   .tab[data-id="water"].active .tab-label { color: var(--water); }
   .tab[data-id="flow"].active .tab-label  { color: var(--flow); }
   .tab[data-id="deep"].active .tab-label  { color: var(--deep); }
-  .tab-dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    display: none;
-  }
-  .tab[data-id="water"] .tab-dot { background: var(--water); }
-  .tab[data-id="flow"]  .tab-dot { background: var(--flow); }
-  .tab[data-id="deep"]  .tab-dot { background: var(--deep); }
-  .tab-dot.show { display: block; }
+  .count-chip { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700; position: absolute; top: 6px; right: 6px; opacity: 0; transition: opacity 0.2s; font-family: 'Space Grotesk', sans-serif; }
+  .tab[data-id="water"] .count-chip { background: var(--water); color: #000; }
+  .tab[data-id="flow"]  .count-chip { background: var(--flow); color: #fff; }
+  .tab[data-id="deep"]  .count-chip { background: var(--deep); color: #000; }
+  .count-chip.show { opacity: 1; }
 
   /* ── Panels ── */
-  .panels {
-    flex: 1; overflow: hidden; position: relative;
-    margin-top: 14px;
-  }
-  .panel {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    padding: 0 16px;
-    overflow-y: auto; overflow-x: hidden;
-    overscroll-behavior: contain;
-    opacity: 0; transform: translateY(12px);
-    pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    padding-bottom: calc(16px + var(--safe-bottom));
-    -webkit-overflow-scrolling: touch;
-  }
-  .panel.active {
-    opacity: 1; transform: translateY(0);
-    pointer-events: all;
-  }
+  .panels { flex: 1; overflow: hidden; position: relative; margin-top: 14px; }
+  .panel { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 0 16px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; padding-bottom: calc(32px + var(--safe-bottom)); -webkit-overflow-scrolling: touch; }
+  .panel.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .panel::-webkit-scrollbar { width: 2px; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 1px; }
+
+  /* ── Glow bar ── */
+  .glow-bar { height: 2px; border-radius: 1px; margin-bottom: 18px; flex-shrink: 0; }
+  .glow-bar-water { background: linear-gradient(90deg, var(--water), transparent); }
+  .glow-bar-flow  { background: linear-gradient(90deg, var(--flow), transparent); }
+  .glow-bar-deep  { background: linear-gradient(90deg, var(--deep), transparent); }
 
   /* ── Section label ── */
-  .section-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
-    text-transform: uppercase; margin-bottom: 10px;
-    margin-top: 18px;
-  }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 10px; margin-top: 20px; }
   .section-label:first-child { margin-top: 0; }
   .label-water { color: var(--water); }
   .label-flow  { color: var(--flow); }
   .label-deep  { color: var(--deep); }
   .label-todo  { color: var(--todo-accent); }
 
-  /* ── Cards ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 10px;
-  }
-
-  /* ── WATER panel ── */
-  .throw-input-wrap {
-    position: relative; margin-bottom: 12px;
-  }
-  .throw-input {
-    width: 100%; background: var(--surface2);
-    border: 1.5px solid rgba(79,195,247,0.2);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-size: 16px; font-weight: 300;
-    padding: 14px 52px 14px 16px;
-    outline: none; resize: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    min-height: 52px; max-height: 200px;
-    line-height: 1.5;
-  }
+  /* ── WATER ── */
+  .throw-input-wrap { position: relative; margin-bottom: 14px; }
+  .throw-input { width: 100%; background: var(--surface2); border: 1.5px solid rgba(79,195,247,0.2); border-radius: var(--radius-sm); color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 16px; font-weight: 300; padding: 14px 52px 14px 16px; outline: none; resize: none; transition: border-color 0.2s, box-shadow 0.2s; min-height: 52px; max-height: 200px; line-height: 1.5; }
   .throw-input::placeholder { color: var(--text-dim); }
-  .throw-input:focus {
-    border-color: rgba(79,195,247,0.5);
-    box-shadow: 0 0 0 3px rgba(79,195,247,0.08);
-  }
-  .throw-btn {
-    position: absolute; right: 10px; bottom: 10px;
-    width: 34px; height: 34px; border-radius: 10px;
-    background: var(--water); border: none;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 16px;
-    transition: transform 0.15s, opacity 0.15s;
-    flex-shrink: 0;
-  }
-  .throw-btn:active { transform: scale(0.9); }
+  .throw-input:focus { border-color: rgba(79,195,247,0.5); box-shadow: 0 0 0 3px rgba(79,195,247,0.08); }
+  .throw-btn { position: absolute; right: 10px; bottom: 10px; width: 34px; height: 34px; border-radius: 10px; background: var(--water); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: transform 0.15s; }
+  .throw-btn:active { transform: scale(0.88); }
 
   .throw-items { display: flex; flex-direction: column; gap: 8px; }
-  .throw-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    animation: slideIn 0.25s ease;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .throw-item-text {
-    flex: 1; font-size: 14px; font-weight: 300;
-    line-height: 1.5; word-break: break-all;
-    color: var(--text);
-  }
-  .throw-item-time {
-    font-size: 10px; color: var(--text-dim);
-    font-family: 'Space Grotesk', sans-serif;
-    white-space: nowrap; margin-top: 1px;
-  }
-  .item-del {
-    background: none; border: none; cursor: pointer;
-    color: var(--text-dim); font-size: 16px; line-height: 1;
-    padding: 2px; transition: color 0.15s;
-    flex-shrink: 0;
-  }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes flyOut  { to { opacity: 0; transform: scale(0.92) translateY(-10px); } }
+
+  .throw-item { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; animation: slideIn 0.22s ease; }
+  .throw-item.flying { animation: flyOut 0.26s ease forwards; pointer-events: none; }
+  .throw-item-top { display: flex; align-items: flex-start; gap: 10px; }
+  .throw-item-text { flex: 1; font-size: 14px; font-weight: 300; line-height: 1.5; word-break: break-all; }
+  .throw-item-time { font-size: 10px; color: var(--text-dim); font-family: 'Space Grotesk', sans-serif; white-space: nowrap; margin-top: 2px; flex-shrink: 0; }
+  .item-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 15px; padding: 2px; flex-shrink: 0; }
   .item-del:active { color: #ef4444; }
 
-  .empty-hint {
-    text-align: center; padding: 32px 0;
-    color: var(--text-dim); font-size: 13px; font-weight: 300;
-    line-height: 1.8;
-  }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+  .slide-actions { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+  .slide-btn { flex: 1; min-width: 0; padding: 7px 6px; border-radius: 100px; border: 1.5px solid var(--border-light); background: var(--surface3); font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.18s; white-space: nowrap; text-align: center; }
+  .slide-btn:active { transform: scale(0.92); }
+  .slide-btn[data-dest="cal"]  { border-color: rgba(79,195,247,0.35); color: var(--water); }
+  .slide-btn[data-dest="todo"] { border-color: rgba(249,115,22,0.35); color: var(--todo-accent); }
+  .slide-btn[data-dest="pend"] { border-color: rgba(167,139,250,0.35); color: var(--flow); }
+  .slide-btn[data-dest="deep"] { border-color: rgba(52,211,153,0.35); color: var(--deep); }
 
-  /* ── FLOW panel ── */
-  .flow-date-group { margin-bottom: 16px; }
-  .flow-date-title {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
-    color: var(--text-muted); margin-bottom: 8px;
-    font-family: 'Space Grotesk', sans-serif;
-    text-transform: uppercase;
-  }
+  /* ── Empty ── */
+  .empty-hint { text-align: center; padding: 28px 0; color: var(--text-dim); font-size: 13px; font-weight: 300; line-height: 1.9; }
+  .empty-icon { font-size: 34px; margin-bottom: 10px; opacity: 0.35; }
 
-  /* Calendar events */
+  /* ── FLOW: Cal items ── */
   .cal-item {
-    display: flex; align-items: center; gap: 12px;
     background: var(--surface2);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--water);
+    border: 1px solid var(--border); border-left: 3px solid var(--water);
     border-radius: var(--radius-sm);
-    padding: 12px 14px; margin-bottom: 6px;
-    animation: slideIn 0.25s ease;
+    margin-bottom: 8px; overflow: hidden;
+    animation: slideIn 0.22s ease;
   }
-  .cal-time {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 11px; font-weight: 600; color: var(--water);
-    white-space: nowrap; min-width: 36px;
-  }
-  .cal-text { flex: 1; font-size: 14px; font-weight: 300; }
-  .cal-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 16px; padding: 2px; }
-  .cal-del:active { color: #ef4444; }
+  .cal-item-main { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+  .cal-time { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; color: var(--water); white-space: nowrap; min-width: 36px; }
+  .cal-body { flex: 1; min-width: 0; }
+  .cal-text { font-size: 14px; font-weight: 300; }
+  .cal-date-label { font-size: 9px; color: var(--text-dim); font-family: 'Space Grotesk', sans-serif; margin-bottom: 2px; }
+  .cal-memo-display { font-size: 12px; font-weight: 300; color: var(--text-muted); margin-top: 4px; line-height: 1.5; font-style: italic; }
+  .edit-btn { background: none; border: none; cursor: pointer; font-size: 13px; padding: 4px 6px; border-radius: 6px; color: var(--text-dim); transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+  .edit-btn:active { background: var(--surface3); color: var(--text); }
+  .x-btn { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 15px; padding: 2px; flex-shrink: 0; }
+  .x-btn:active { color: #ef4444; }
 
-  /* Pending */
-  .pending-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--flow);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px; margin-bottom: 6px;
-    animation: slideIn 0.25s ease;
+  /* inline edit panel inside cal-item */
+  .cal-edit-panel {
+    display: none; padding: 12px 14px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface3);
+    gap: 8px; flex-direction: column;
   }
-  .pending-tag {
-    font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-    background: var(--flow-glow); color: var(--flow);
-    padding: 2px 7px; border-radius: 100px;
-    white-space: nowrap; margin-top: 2px;
-    flex-shrink: 0;
-  }
-  .pending-text { flex: 1; font-size: 14px; font-weight: 300; line-height: 1.5; }
-  .pending-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 16px; padding: 2px; }
-  .pending-del:active { color: #ef4444; }
-
-  /* Flow add form */
-  .flow-add-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 10px;
-  }
-  .flow-form-row {
-    display: flex; gap: 8px; margin-bottom: 10px;
-    flex-wrap: wrap;
-  }
-  .flow-form-row:last-child { margin-bottom: 0; }
-  .flow-input {
-    flex: 1; min-width: 0;
-    background: var(--surface2);
-    border: 1.5px solid var(--border-light);
+  .cal-edit-panel.open { display: flex; }
+  .cal-edit-row { display: flex; gap: 8px; }
+  .cal-edit-input {
+    flex: 1; background: var(--surface2);
+    border: 1.5px solid rgba(79,195,247,0.2);
     border-radius: var(--radius-xs);
-    color: var(--text);
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-size: 14px; font-weight: 300;
-    padding: 10px 12px; outline: none;
+    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px; padding: 9px 11px; outline: none;
     transition: border-color 0.2s;
   }
-  .flow-input::placeholder { color: var(--text-dim); }
-  .flow-input:focus { border-color: var(--flow); }
-  .flow-select {
-    background: var(--surface2);
-    border: 1.5px solid var(--border-light);
+  .cal-edit-input:focus { border-color: var(--water); }
+  .cal-edit-memo {
+    width: 100%; background: var(--surface2);
+    border: 1.5px solid rgba(79,195,247,0.15);
     border-radius: var(--radius-xs);
-    color: var(--text);
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-size: 13px; padding: 10px 10px;
-    outline: none; cursor: pointer;
+    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px; padding: 9px 11px; outline: none; resize: none;
+    line-height: 1.5; min-height: 60px;
     transition: border-color 0.2s;
   }
-  .flow-select:focus { border-color: var(--flow); }
-  .type-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-  .type-btn {
-    padding: 8px 14px; border-radius: 100px;
-    border: 1.5px solid var(--border-light);
-    background: var(--surface2);
-    color: var(--text-muted); font-family: 'Zen Kaku Gothic New', sans-serif;
+  .cal-edit-memo:focus { border-color: var(--water); }
+  .cal-edit-memo::placeholder { color: var(--text-dim); }
+  .cal-save-btn {
+    padding: 9px 18px; border-radius: 100px;
+    background: var(--water); border: none;
+    color: #000; font-family: 'Zen Kaku Gothic New', sans-serif;
     font-size: 12px; font-weight: 700; cursor: pointer;
-    transition: all 0.2s;
+    transition: transform 0.15s; align-self: flex-end;
   }
-  .type-btn.selected-cal  { border-color: var(--water); color: var(--water); background: var(--water-dim); }
-  .type-btn.selected-todo { border-color: var(--todo-accent); color: var(--todo-accent); background: var(--todo-dim); }
-  .type-btn.selected-pend { border-color: var(--flow); color: var(--flow); background: var(--flow-dim); }
-  .flow-add-btn {
-    width: 100%; padding: 13px;
-    background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.1));
-    border: 1.5px solid rgba(167,139,250,0.3);
-    border-radius: var(--radius-sm);
-    color: var(--flow); font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-size: 14px; font-weight: 700; cursor: pointer;
-    transition: all 0.2s;
-  }
-  .flow-add-btn:active { transform: scale(0.98); opacity: 0.8; }
+  .cal-save-btn:active { transform: scale(0.92); }
 
-  /* Flow hint */
-  .flow-hint {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
-    margin-bottom: 10px;
-  }
-  .flow-hint-title {
-    font-size: 11px; font-weight: 700;
-    color: var(--flow); margin-bottom: 6px;
-  }
-  .flow-hint-list {
-    font-size: 12px; font-weight: 300; color: var(--text-muted);
-    line-height: 1.8;
-  }
-
-  /* ── TODO (in flow panel) ── */
-  .todo-item {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--todo-accent);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px; margin-bottom: 6px;
-    animation: slideIn 0.25s ease;
-    transition: opacity 0.3s;
-  }
-  .todo-item.done { opacity: 0.4; }
-  .todo-check {
-    width: 20px; height: 20px; border-radius: 6px;
-    border: 2px solid rgba(249,115,22,0.4);
-    background: transparent; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .todo-check.checked {
-    background: var(--todo-accent); border-color: var(--todo-accent);
-  }
-  .todo-check.checked::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
-  .todo-text {
-    flex: 1; font-size: 14px; font-weight: 300;
-    transition: text-decoration 0.2s;
-  }
-  .todo-item.done .todo-text { text-decoration: line-through; }
-  .todo-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 16px; padding: 2px; }
-
-  /* Todo count badge */
-  .todo-count-row {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .todo-count-badge {
-    font-size: 11px; font-weight: 700;
-    font-family: 'Space Grotesk', sans-serif;
-    padding: 4px 10px; border-radius: 100px;
-  }
+  /* ── FLOW: Todo ── */
+  .todo-count-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .todo-count-badge { font-size: 11px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; padding: 4px 10px; border-radius: 100px; }
   .todo-count-badge.ok  { background: var(--todo-dim); color: var(--todo-accent); }
   .todo-count-badge.max { background: rgba(239,68,68,0.1); color: #ef4444; }
 
-  /* ── DEEP panel ── */
-  .anchor-list { display: flex; flex-direction: column; gap: 10px; }
-  .anchor-card {
-    background: linear-gradient(135deg, var(--surface2), var(--surface));
-    border: 1px solid rgba(52,211,153,0.15);
-    border-radius: var(--radius);
-    padding: 18px 16px;
-    position: relative; overflow: hidden;
-    animation: slideIn 0.25s ease;
-  }
-  .anchor-card::before {
-    content: ''; position: absolute;
-    top: -40px; right: -40px;
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: var(--deep-glow);
-    pointer-events: none;
-  }
-  .anchor-text {
-    font-size: 15px; font-weight: 400; line-height: 1.6;
-    color: var(--text);
-  }
-  .anchor-meta {
-    margin-top: 10px;
-    font-size: 10px; color: var(--text-dim);
-    font-family: 'Space Grotesk', sans-serif;
-  }
-  .anchor-del {
-    position: absolute; top: 12px; right: 12px;
-    background: none; border: none; cursor: pointer;
-    color: var(--text-dim); font-size: 16px;
-  }
-  .anchor-del:active { color: #ef4444; }
+  .todo-item { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--todo-accent); border-radius: var(--radius-sm); margin-bottom: 6px; animation: slideIn 0.22s ease; overflow: hidden; }
+  .todo-item.done { opacity: 0.45; }
+  .todo-item-main { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+  .todo-check { width: 20px; height: 20px; border-radius: 6px; border: 2px solid rgba(249,115,22,0.4); background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+  .todo-check.checked { background: var(--todo-accent); border-color: var(--todo-accent); }
+  .todo-check.checked::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
+  .todo-text { flex: 1; font-size: 14px; font-weight: 300; }
+  .todo-item.done .todo-text { text-decoration: line-through; }
+  .todo-memo-display { font-size: 12px; font-weight: 300; color: var(--text-muted); margin-top: 3px; font-style: italic; line-height: 1.4; }
 
-  .anchor-input-wrap { margin-bottom: 14px; }
-  .anchor-input {
-    width: 100%; background: var(--surface2);
-    border: 1.5px solid rgba(52,211,153,0.2);
-    border-radius: var(--radius-sm);
-    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-size: 15px; font-weight: 300; padding: 14px 16px;
-    outline: none; resize: none; min-height: 80px; line-height: 1.6;
-    transition: border-color 0.2s, box-shadow 0.2s;
+  /* inline edit for todo */
+  .todo-edit-panel {
+    display: none; padding: 10px 14px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface3);
+    flex-direction: column; gap: 8px;
   }
-  .anchor-input:focus {
-    border-color: rgba(52,211,153,0.5);
-    box-shadow: 0 0 0 3px rgba(52,211,153,0.06);
-  }
-  .anchor-input::placeholder { color: var(--text-dim); }
-  .anchor-add-btn {
-    width: 100%; padding: 13px;
-    background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.08));
-    border: 1.5px solid rgba(52,211,153,0.3);
-    border-radius: var(--radius-sm);
-    color: var(--deep); font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-size: 14px; font-weight: 700; cursor: pointer;
-    transition: all 0.2s; margin-bottom: 20px;
-  }
-  .anchor-add-btn:active { transform: scale(0.98); opacity: 0.8; }
-
-  /* Deep intro text */
-  .deep-intro {
+  .todo-edit-panel.open { display: flex; }
+  .todo-edit-date {
     background: var(--surface2);
-    border: 1px solid rgba(52,211,153,0.12);
-    border-radius: var(--radius);
-    padding: 16px; margin-bottom: 14px;
+    border: 1.5px solid rgba(249,115,22,0.2);
+    border-radius: var(--radius-xs);
+    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px; padding: 9px 11px; outline: none;
+    transition: border-color 0.2s; width: 100%;
   }
+  .todo-edit-date:focus { border-color: var(--todo-accent); }
+  .todo-edit-memo {
+    width: 100%; background: var(--surface2);
+    border: 1.5px solid rgba(249,115,22,0.15);
+    border-radius: var(--radius-xs);
+    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px; padding: 9px 11px; outline: none; resize: none;
+    line-height: 1.5; min-height: 60px;
+    transition: border-color 0.2s;
+  }
+  .todo-edit-memo:focus { border-color: var(--todo-accent); }
+  .todo-edit-memo::placeholder { color: var(--text-dim); }
+  .todo-save-btn {
+    padding: 9px 18px; border-radius: 100px;
+    background: var(--todo-accent); border: none;
+    color: #fff; font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: transform 0.15s; align-self: flex-end;
+  }
+  .todo-save-btn:active { transform: scale(0.92); }
+
+  /* ── FLOW: Pending ── */
+  .pending-item { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--flow); border-radius: var(--radius-sm); margin-bottom: 6px; animation: slideIn 0.22s ease; overflow: hidden; }
+  .pending-item-main { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; }
+  .pending-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; background: var(--flow-glow); color: var(--flow); padding: 2px 7px; border-radius: 100px; white-space: nowrap; margin-top: 2px; flex-shrink: 0; }
+  .pending-text { flex: 1; font-size: 14px; font-weight: 300; line-height: 1.5; }
+  .pend-memo-display { font-size: 12px; font-weight: 300; color: var(--text-muted); margin-top: 3px; font-style: italic; line-height: 1.4; }
+
+  /* inline edit for pending */
+  .pend-edit-panel {
+    display: none; padding: 10px 14px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface3);
+    flex-direction: column; gap: 8px;
+  }
+  .pend-edit-panel.open { display: flex; }
+  .pend-edit-memo {
+    width: 100%; background: var(--surface2);
+    border: 1.5px solid rgba(167,139,250,0.2);
+    border-radius: var(--radius-xs);
+    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px; padding: 9px 11px; outline: none; resize: none;
+    line-height: 1.5; min-height: 60px;
+    transition: border-color 0.2s;
+  }
+  .pend-edit-memo:focus { border-color: var(--flow); }
+  .pend-edit-memo::placeholder { color: var(--text-dim); }
+  .pend-save-btn {
+    padding: 9px 18px; border-radius: 100px;
+    background: var(--flow); border: none;
+    color: #fff; font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: transform 0.15s; align-self: flex-end;
+  }
+  .pend-save-btn:active { transform: scale(0.92); }
+
+  /* ── DEEP ── */
+  .deep-intro { background: var(--surface2); border: 1px solid rgba(52,211,153,0.12); border-radius: var(--radius); padding: 16px; margin-bottom: 4px; }
   .deep-intro p { font-size: 13px; font-weight: 300; color: var(--text-muted); line-height: 1.8; }
 
-  /* ── Glow dot ── */
-  .glow-bar {
-    height: 2px; border-radius: 1px; margin-bottom: 18px;
-    flex-shrink: 0;
-  }
-  .glow-bar-water { background: linear-gradient(90deg, var(--water), transparent); }
-  .glow-bar-flow  { background: linear-gradient(90deg, var(--flow), transparent); }
-  .glow-bar-deep  { background: linear-gradient(90deg, var(--deep), transparent); }
+  .anchor-card { background: linear-gradient(135deg, var(--surface2), var(--surface)); border: 1px solid rgba(52,211,153,0.15); border-radius: var(--radius); overflow: hidden; animation: slideIn 0.22s ease; margin-bottom: 10px; }
+  .anchor-card-main { padding: 18px 16px; position: relative; }
+  .anchor-card-main::before { content: ''; position: absolute; top: -40px; right: -40px; width: 100px; height: 100px; border-radius: 50%; background: var(--deep-glow); pointer-events: none; }
+  .anchor-text { font-size: 15px; font-weight: 400; line-height: 1.6; color: var(--text); padding-right: 56px; }
+  .anchor-meta { margin-top: 6px; font-size: 10px; color: var(--text-dim); font-family: 'Space Grotesk', sans-serif; }
+  .anchor-meaning-display { margin-top: 10px; padding: 10px 12px; background: rgba(52,211,153,0.06); border-radius: var(--radius-xs); border-left: 2px solid rgba(52,211,153,0.3); }
+  .anchor-meaning-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--deep); margin-bottom: 4px; }
+  .anchor-meaning-text { font-size: 13px; font-weight: 300; color: var(--text-muted); line-height: 1.6; }
+  .anchor-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; align-items: center; }
+  .anchor-edit-btn { background: none; border: none; cursor: pointer; font-size: 13px; padding: 4px 6px; border-radius: 6px; color: var(--text-dim); transition: all 0.15s; }
+  .anchor-edit-btn:active { background: rgba(52,211,153,0.1); color: var(--deep); }
+  .anchor-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 15px; padding: 2px; }
+  .anchor-del:active { color: #ef4444; }
 
-  /* ── Throw-from-water CTA ── */
-  .throw-to-flow-note {
-    text-align: center; font-size: 12px; font-weight: 300;
-    color: var(--text-dim); padding: 12px 0 4px;
-    line-height: 1.7;
+  /* anchor inline edit */
+  .anchor-edit-panel {
+    display: none; padding: 0 16px 16px;
+    flex-direction: column; gap: 8px;
+    border-top: 1px solid rgba(52,211,153,0.1);
+    background: rgba(52,211,153,0.03);
   }
-
-  /* ── Scrollbar ── */
-  .panel::-webkit-scrollbar { width: 2px; }
-  .panel::-webkit-scrollbar-track { background: transparent; }
-  .panel::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 1px; }
-
-  /* ── Water count badge ── */
-  .count-chip {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 18px; height: 18px; border-radius: 50%;
-    font-size: 10px; font-weight: 700;
-    position: absolute; top: 6px; right: 6px;
-    opacity: 0; transition: opacity 0.2s;
-    font-family: 'Space Grotesk', sans-serif;
+  .anchor-edit-panel.open { display: flex; padding-top: 14px; }
+  .anchor-edit-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--deep); }
+  .anchor-edit-memo {
+    width: 100%; background: var(--surface2);
+    border: 1.5px solid rgba(52,211,153,0.2);
+    border-radius: var(--radius-xs);
+    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px; padding: 10px 12px; outline: none; resize: none;
+    line-height: 1.6; min-height: 80px;
+    transition: border-color 0.2s;
   }
-  .tab[data-id="water"] .count-chip { background: var(--water); color: #000; }
-  .tab[data-id="flow"]  .count-chip { background: var(--flow); color: #fff; }
-  .count-chip.show { opacity: 1; }
+  .anchor-edit-memo:focus { border-color: var(--deep); }
+  .anchor-edit-memo::placeholder { color: var(--text-dim); }
+  .anchor-save-btn {
+    padding: 10px 20px; border-radius: 100px;
+    background: var(--deep); border: none;
+    color: #000; font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: transform 0.15s; align-self: flex-end;
+  }
+  .anchor-save-btn:active { transform: scale(0.92); }
 
   /* ── Toast ── */
-  .toast {
-    position: fixed; bottom: calc(var(--tab-h) + 20px + var(--safe-bottom));
-    left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--surface3); border: 1px solid var(--border-light);
-    color: var(--text); font-size: 13px; font-weight: 400;
-    padding: 10px 20px; border-radius: 100px;
-    opacity: 0; pointer-events: none;
-    transition: all 0.3s ease; white-space: nowrap;
-    z-index: 100;
-  }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface3); border: 1px solid var(--border-light); color: var(--text); font-size: 13px; font-weight: 400; padding: 10px 20px; border-radius: 100px; opacity: 0; pointer-events: none; transition: all 0.3s ease; white-space: nowrap; z-index: 100; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* ── Cal slide sheet ── */
+  .sheet-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.6); align-items: flex-end; backdrop-filter: blur(4px); }
+  .sheet-overlay.show { display: flex; }
+  .sheet { width: 100%; background: var(--surface2); border-radius: 24px 24px 0 0; padding: 24px 20px calc(24px + var(--safe-bottom)); border-top: 1px solid var(--border-light); animation: sheetUp 0.28s ease; }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet-title { font-size: 14px; font-weight: 700; color: var(--water); margin-bottom: 14px; text-align: center; letter-spacing: 0.05em; }
+  .sheet-preview { background: var(--surface3); border-radius: var(--radius-xs); padding: 10px 14px; margin-bottom: 14px; font-size: 13px; font-weight: 300; color: var(--text-muted); line-height: 1.5; word-break: break-all; }
+  .sheet-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .sheet-input { flex: 1; background: var(--surface3); border: 1.5px solid rgba(79,195,247,0.2); border-radius: var(--radius-xs); color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 14px; padding: 11px 13px; outline: none; transition: border-color 0.2s; }
+  .sheet-input:focus { border-color: var(--water); }
+  .sheet-confirm { width: 100%; padding: 14px; background: var(--water); border: none; border-radius: var(--radius-sm); color: #000; font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.15s; }
+  .sheet-confirm:active { transform: scale(0.97); }
+  .sheet-cancel { width: 100%; padding: 12px; margin-top: 8px; background: none; border: none; color: var(--text-dim); font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 13px; cursor: pointer; }
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- Header -->
   <div class="header">
     <div class="header-inner">
       <span class="header-title">三層スケジュール</span>
@@ -539,158 +340,111 @@
     </div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <div class="tab active" data-id="water" onclick="switchTab('water')">
-      <span class="tab-icon">🌊</span>
-      <span class="tab-label">水面</span>
+      <span class="tab-icon">🌊</span><span class="tab-label">水面</span>
       <span class="count-chip" id="waterCount"></span>
     </div>
     <div class="tab" data-id="flow" onclick="switchTab('flow')">
-      <span class="tab-icon">🌀</span>
-      <span class="tab-label">流れ</span>
+      <span class="tab-icon">🌀</span><span class="tab-label">流れ</span>
       <span class="count-chip" id="flowCount"></span>
     </div>
     <div class="tab" data-id="deep" onclick="switchTab('deep')">
-      <span class="tab-icon">🌿</span>
-      <span class="tab-label">深層</span>
+      <span class="tab-icon">🌿</span><span class="tab-label">深層</span>
+      <span class="count-chip" id="deepCount"></span>
     </div>
   </div>
 
-  <!-- Panels -->
   <div class="panels">
 
-    <!-- WATER panel -->
+    <!-- ① 水面 -->
     <div class="panel active" id="panel-water">
       <div style="height:6px"></div>
       <div class="glow-bar glow-bar-water"></div>
-
       <div class="throw-input-wrap">
         <textarea class="throw-input" id="throwInput"
           placeholder="思いついたこと、なんでも投げ込む&#10;「4/3 入学式」「教科書買う」など"
           rows="1"></textarea>
-        <button class="throw-btn" onclick="addThrow()" aria-label="追加">↵</button>
+        <button class="throw-btn" onclick="addThrow()">↵</button>
       </div>
-
       <div class="throw-items" id="throwList"></div>
-
-      <div class="throw-to-flow-note" id="waterHint" style="display:none">
-        「流れ」タブで整理しましょう 🌀
-      </div>
     </div>
 
-    <!-- FLOW panel -->
+    <!-- ② 流れ -->
     <div class="panel" id="panel-flow">
       <div style="height:6px"></div>
       <div class="glow-bar glow-bar-flow"></div>
 
-      <!-- Hint card -->
-      <div class="flow-hint">
-        <div class="flow-hint-title">🌀 1日1回の整理タイム</div>
-        <div class="flow-hint-list">
-          📅 日付あり → カレンダーへ<br>
-          ✅ タスク → ToDoへ（1日3つまで）<br>
-          💭 曖昧なもの → 保留ボックスへ
-        </div>
-      </div>
+      <div class="section-label label-water" style="margin-top:0">📅 カレンダー</div>
+      <div id="calList"></div>
 
-      <!-- Add form -->
-      <div class="flow-add-card">
-        <div class="flow-form-row">
-          <input class="flow-input" id="flowText" placeholder="内容を入力" />
-        </div>
-        <div class="flow-form-row">
-          <div class="type-btns" id="typeBtns">
-            <button class="type-btn selected-cal" data-type="cal" onclick="selectType(this,'cal')">📅 カレンダー</button>
-            <button class="type-btn" data-type="todo" onclick="selectType(this,'todo')">✅ ToDo</button>
-            <button class="type-btn" data-type="pend" onclick="selectType(this,'pend')">💭 保留</button>
-          </div>
-        </div>
-        <div class="flow-form-row" id="dateRow">
-          <input class="flow-input" id="flowDate" type="date" />
-          <input class="flow-input" id="flowTime" type="time" style="max-width:110px" />
-        </div>
-        <button class="flow-add-btn" onclick="addFlow()">＋ 追加する</button>
+      <div class="todo-count-row">
+        <div class="section-label label-todo" style="margin:0">✅ 今日のToDo</div>
+        <span class="todo-count-badge ok" id="todoBadge">0 / 3</span>
       </div>
+      <div id="todoList"></div>
 
-      <!-- Calendar section -->
-      <div id="calSection">
-        <div class="section-label label-water">📅 カレンダー</div>
-        <div id="calList"></div>
-      </div>
-
-      <!-- Todo section -->
-      <div id="todoSection">
-        <div class="todo-count-row">
-          <div class="section-label label-todo" style="margin:0">✅ 今日のToDo</div>
-          <span class="todo-count-badge ok" id="todoBadge">0 / 3</span>
-        </div>
-        <div id="todoList"></div>
-      </div>
-
-      <!-- Pending section -->
-      <div id="pendSection">
-        <div class="section-label label-flow">💭 保留ボックス</div>
-        <div id="pendList"></div>
-      </div>
-
+      <div class="section-label label-flow">💭 保留ボックス</div>
+      <div id="pendList"></div>
     </div>
 
-    <!-- DEEP panel -->
+    <!-- ③ 深層 -->
     <div class="panel" id="panel-deep">
       <div style="height:6px"></div>
       <div class="glow-bar glow-bar-deep"></div>
-
       <div class="deep-intro">
-        <p>「なぜこれをやるのか」を置く場所。<br>整理や行動ではなく、<strong>意味と安心</strong>のための場所です。</p>
+        <p>「なぜこれをやるのか」を置く場所。<br>整理や行動ではなく、<strong>意味と安心</strong>のための場所です。<br><br>✏️ ボタンで「意味・気持ち」を書き足せます。</p>
       </div>
-
-      <div class="anchor-input-wrap">
-        <textarea class="anchor-input" id="anchorInput"
-          placeholder="例：「大学生活を整えるため」&#10;「安心して生活するため」"></textarea>
-      </div>
-      <button class="anchor-add-btn" onclick="addAnchor()">＋ 意味を置く</button>
-
-      <div class="section-label label-deep">🌿 私のアンカー</div>
-      <div class="anchor-list" id="anchorList"></div>
+      <div class="section-label label-deep" style="margin-top:14px">🌿 私のアンカー</div>
+      <div id="anchorList"></div>
     </div>
 
   </div>
 </div>
 
-<!-- Toast -->
+<!-- 水面→カレンダー スライドシート -->
+<div class="sheet-overlay" id="calSheet">
+  <div class="sheet">
+    <div class="sheet-title">📅 カレンダーへスライド</div>
+    <div class="sheet-preview" id="sheetPreview"></div>
+    <div class="sheet-row">
+      <input class="sheet-input" id="sheetDate" type="date" />
+      <input class="sheet-input" id="sheetTime" type="time" style="max-width:110px" />
+    </div>
+    <button class="sheet-confirm" onclick="confirmCal()">カレンダーへ ✓</button>
+    <button class="sheet-cancel" onclick="closeSheet()">キャンセル</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Storage helpers ──
 const LS = {
   get: (k) => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
   set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 
-// ── State ──
-let throws  = LS.get('tl_throws');
-let calItems = LS.get('tl_cal');
+let throws    = LS.get('tl_throws');
+let calItems  = LS.get('tl_cal');
 let todoItems = LS.get('tl_todo');
 let pendItems = LS.get('tl_pend');
-let anchors  = LS.get('tl_anchors');
-let flowType = 'cal';
+let anchors   = LS.get('tl_anchors');
+let sheetIdx  = null;
 
-// ── Init ──
+// track which item's edit panel is open (per list)
+let calEditOpen  = null;
+let todoEditOpen = null;
+let pendEditOpen = null;
+let anchorEditOpen = null;
+
 function init() {
-  // Today label
   const d = new Date();
   const days = ['日','月','火','水','木','金','土'];
-  document.getElementById('todayLabel').textContent =
-    `${d.getMonth()+1}/${d.getDate()}（${days[d.getDay()]}）`;
-
-  // Default date to today
-  document.getElementById('flowDate').value = d.toISOString().split('T')[0];
-
+  document.getElementById('todayLabel').textContent = `${d.getMonth()+1}/${d.getDate()}（${days[d.getDay()]}）`;
+  document.getElementById('sheetDate').value = d.toISOString().split('T')[0];
   render();
 }
 
-// ── Tab switch ──
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -698,115 +452,244 @@ function switchTab(id) {
   document.getElementById(`panel-${id}`).classList.add('active');
 }
 
-// ── Type select (flow form) ──
-function selectType(btn, type) {
-  flowType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected-cal','selected-todo','selected-pend'));
-  btn.classList.add(`selected-${type}`);
-  document.getElementById('dateRow').style.display = (type === 'cal') ? '' : 'none';
-}
+function render() { renderWater(); renderFlow(); renderDeep(); updateBadges(); }
 
-// ── Render ──
-function render() {
-  renderWater();
-  renderFlow();
-  renderDeep();
-  updateBadges();
-}
-
+/* ── WATER ── */
 function renderWater() {
   const list = document.getElementById('throwList');
-  if (throws.length === 0) {
+  if (!throws.length) {
     list.innerHTML = `<div class="empty-hint"><div class="empty-icon">💭</div>まだ何も投げ込まれていません<br>思いついたら、すぐここへ</div>`;
-    document.getElementById('waterHint').style.display = 'none';
-  } else {
-    list.innerHTML = throws.map((item, i) => `
-      <div class="throw-item">
-        <div style="flex:1">
-          <div class="throw-item-text">${escHtml(item.text)}</div>
-          <div class="throw-item-time">${item.time}</div>
-        </div>
-        <button class="item-del" onclick="delThrow(${i})" aria-label="削除">✕</button>
-      </div>`).join('');
-    document.getElementById('waterHint').style.display = throws.length >= 3 ? '' : 'none';
+    return;
   }
+  list.innerHTML = throws.map((item, i) => `
+    <div class="throw-item" id="ti-${item.id}">
+      <div class="throw-item-top">
+        <div class="throw-item-text">${esc(item.text)}</div>
+        <span class="throw-item-time">${item.time}</span>
+        <button class="item-del" onclick="delThrow(${i})">✕</button>
+      </div>
+      <div class="slide-actions">
+        <button class="slide-btn" data-dest="cal"  onclick="slideToCalSheet(${i})">📅 カレンダー</button>
+        <button class="slide-btn" data-dest="todo" onclick="slideTo(${i},'todo')">✅ ToDo</button>
+        <button class="slide-btn" data-dest="pend" onclick="slideTo(${i},'pend')">💭 保留</button>
+        <button class="slide-btn" data-dest="deep" onclick="slideTo(${i},'deep')">🌿 深層へ</button>
+      </div>
+    </div>`).join('');
 }
 
+/* ── FLOW ── */
 function renderFlow() {
-  // Calendar
-  const calList = document.getElementById('calList');
-  if (calItems.length === 0) {
-    calList.innerHTML = `<div class="empty-hint" style="padding:12px 0;font-size:12px">まだ予定がありません</div>`;
-  } else {
-    const sorted = [...calItems].sort((a,b) => (a.date+a.time) < (b.date+b.time) ? -1 : 1);
-    calList.innerHTML = sorted.map((item, i) => `
-      <div class="cal-item">
-        <div class="cal-time">${item.time || '--:--'}</div>
-        <div style="flex:1">
-          <div style="font-size:9px;color:var(--text-dim);margin-bottom:2px;font-family:'Space Grotesk',sans-serif">${fmtDate(item.date)}</div>
-          <div class="cal-text">${escHtml(item.text)}</div>
-        </div>
-        <button class="cal-del" onclick="delCal(${calItems.indexOf(item)})" aria-label="削除">✕</button>
-      </div>`).join('');
-  }
-
-  // Todo
-  const todoList = document.getElementById('todoList');
-  const badge = document.getElementById('todoBadge');
-  const active = todoItems.filter(t => !t.done).length;
-  badge.textContent = `${active} / 3`;
-  badge.className = `todo-count-badge ${active > 3 ? 'max' : 'ok'}`;
-  if (todoItems.length === 0) {
-    todoList.innerHTML = `<div class="empty-hint" style="padding:12px 0;font-size:12px">今日のToDoを3つまで追加</div>`;
-  } else {
-    todoList.innerHTML = todoItems.map((item, i) => `
-      <div class="todo-item ${item.done ? 'done' : ''}">
-        <div class="todo-check ${item.done ? 'checked' : ''}" onclick="toggleTodo(${i})"></div>
-        <div class="todo-text">${escHtml(item.text)}</div>
-        <button class="todo-del" onclick="delTodo(${i})" aria-label="削除">✕</button>
-      </div>`).join('');
-  }
-
-  // Pending
-  const pendList = document.getElementById('pendList');
-  if (pendItems.length === 0) {
-    pendList.innerHTML = `<div class="empty-hint" style="padding:12px 0;font-size:12px">保留中のものはありません</div>`;
-  } else {
-    pendList.innerHTML = pendItems.map((item, i) => `
-      <div class="pending-item">
-        <div class="pending-tag">保留</div>
-        <div class="pending-text">${escHtml(item.text)}</div>
-        <button class="pending-del" onclick="delPend(${i})" aria-label="削除">✕</button>
-      </div>`).join('');
-  }
+  renderCal(); renderTodo(); renderPend();
 }
 
+function renderCal() {
+  const cl = document.getElementById('calList');
+  if (!calItems.length) {
+    cl.innerHTML = `<div class="empty-hint" style="padding:12px 0 4px;font-size:12px">水面からスライドすると<br>ここに表示されます</div>`;
+    return;
+  }
+  const sorted = [...calItems].sort((a,b) => (a.date+a.time)<(b.date+b.time)?-1:1);
+  cl.innerHTML = sorted.map(item => {
+    const isOpen = calEditOpen === String(item.id);
+    const memoHtml = item.memo
+      ? `<div class="cal-memo-display">💬 ${esc(item.memo)}</div>` : '';
+    return `
+    <div class="cal-item" id="ci-${item.id}">
+      <div class="cal-item-main">
+        <div class="cal-time">${item.time||'--:--'}</div>
+        <div class="cal-body">
+          <div class="cal-date-label">${fmtDate(item.date)}</div>
+          <div class="cal-text">${esc(item.text)}</div>
+          ${memoHtml}
+        </div>
+        <button class="edit-btn" onclick="toggleCalEdit('${item.id}')" title="日程・メモを編集">✏️</button>
+        <button class="x-btn" onclick="delCal('${item.id}')">✕</button>
+      </div>
+      <div class="cal-edit-panel ${isOpen?'open':''}" id="cep-${item.id}">
+        <div class="cal-edit-row">
+          <input class="cal-edit-input" type="date" id="ced-${item.id}" value="${item.date||''}" />
+          <input class="cal-edit-input" type="time" id="cet-${item.id}" value="${item.time||''}" style="max-width:110px"/>
+        </div>
+        <textarea class="cal-edit-memo" id="cem-${item.id}" placeholder="メモを追加（任意）" rows="2">${item.memo||''}</textarea>
+        <button class="cal-save-btn" onclick="saveCal('${item.id}')">保存 ✓</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCalEdit(id) {
+  calEditOpen = calEditOpen === String(id) ? null : String(id);
+  renderCal();
+}
+
+function saveCal(id) {
+  const item = calItems.find(x => String(x.id) === String(id));
+  if (!item) return;
+  item.date = document.getElementById(`ced-${id}`).value || item.date;
+  item.time = document.getElementById(`cet-${id}`).value;
+  item.memo = document.getElementById(`cem-${id}`).value.trim();
+  LS.set('tl_cal', calItems);
+  calEditOpen = null;
+  renderCal();
+  updateBadges();
+  showToast('日程を更新しました 📅');
+}
+
+function renderTodo() {
+  const tl = document.getElementById('todoList');
+  const badge = document.getElementById('todoBadge');
+  const act = todoItems.filter(t=>!t.done).length;
+  badge.textContent = `${act} / 3`;
+  badge.className = `todo-count-badge ${act>3?'max':'ok'}`;
+  if (!todoItems.length) {
+    tl.innerHTML = `<div class="empty-hint" style="padding:12px 0 4px;font-size:12px">水面からスライドすると<br>ここに表示されます</div>`;
+    return;
+  }
+  tl.innerHTML = todoItems.map(item => {
+    const isOpen = todoEditOpen === String(item.id);
+    const memoHtml = item.memo ? `<div class="todo-memo-display">💬 ${esc(item.memo)}</div>` : '';
+    const dateHtml = item.dueDate ? `<div style="font-size:10px;color:var(--todo-accent);margin-top:2px;font-family:'Space Grotesk',sans-serif">📅 ${fmtDate(item.dueDate)}</div>` : '';
+    return `
+    <div class="todo-item ${item.done?'done':''}" id="tdi-${item.id}">
+      <div class="todo-item-main">
+        <div class="todo-check ${item.done?'checked':''}" onclick="toggleTodo('${item.id}')"></div>
+        <div style="flex:1;min-width:0">
+          <div class="todo-text">${esc(item.text)}</div>
+          ${dateHtml}${memoHtml}
+        </div>
+        <button class="edit-btn" onclick="toggleTodoEdit('${item.id}')">✏️</button>
+        <button class="x-btn" onclick="delTodo('${item.id}')">✕</button>
+      </div>
+      <div class="todo-edit-panel ${isOpen?'open':''}" id="tep-${item.id}">
+        <input class="todo-edit-date" type="date" id="ted-${item.id}" value="${item.dueDate||''}" placeholder="期日（任意）"/>
+        <textarea class="todo-edit-memo" id="tem-${item.id}" placeholder="メモを追加（任意）" rows="2">${item.memo||''}</textarea>
+        <button class="todo-save-btn" onclick="saveTodo('${item.id}')">保存 ✓</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTodoEdit(id) {
+  todoEditOpen = todoEditOpen === String(id) ? null : String(id);
+  renderTodo();
+}
+
+function saveTodo(id) {
+  const item = todoItems.find(x => String(x.id) === String(id));
+  if (!item) return;
+  item.dueDate = document.getElementById(`ted-${id}`).value;
+  item.memo    = document.getElementById(`tem-${id}`).value.trim();
+  LS.set('tl_todo', todoItems);
+  todoEditOpen = null;
+  renderTodo();
+  showToast('ToDoを更新しました ✅');
+}
+
+function renderPend() {
+  const pl = document.getElementById('pendList');
+  if (!pendItems.length) {
+    pl.innerHTML = `<div class="empty-hint" style="padding:12px 0 4px;font-size:12px">水面からスライドすると<br>ここに表示されます</div>`;
+    return;
+  }
+  pl.innerHTML = pendItems.map(item => {
+    const isOpen = pendEditOpen === String(item.id);
+    const memoHtml = item.memo ? `<div class="pend-memo-display">💬 ${esc(item.memo)}</div>` : '';
+    return `
+    <div class="pending-item" id="pi-${item.id}">
+      <div class="pending-item-main">
+        <div class="pending-tag">保留</div>
+        <div style="flex:1;min-width:0">
+          <div class="pending-text">${esc(item.text)}</div>
+          ${memoHtml}
+        </div>
+        <button class="edit-btn" onclick="togglePendEdit('${item.id}')">✏️</button>
+        <button class="x-btn" onclick="delPend('${item.id}')">✕</button>
+      </div>
+      <div class="pend-edit-panel ${isOpen?'open':''}" id="pep-${item.id}">
+        <textarea class="pend-edit-memo" id="pem-${item.id}" placeholder="気になっていること、感じていることなど" rows="2">${item.memo||''}</textarea>
+        <button class="pend-save-btn" onclick="savePend('${item.id}')">保存 ✓</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePendEdit(id) {
+  pendEditOpen = pendEditOpen === String(id) ? null : String(id);
+  renderPend();
+}
+
+function savePend(id) {
+  const item = pendItems.find(x => String(x.id) === String(id));
+  if (!item) return;
+  item.memo = document.getElementById(`pem-${id}`).value.trim();
+  LS.set('tl_pend', pendItems);
+  pendEditOpen = null;
+  renderPend();
+  showToast('保留メモを更新しました 💭');
+}
+
+/* ── DEEP ── */
 function renderDeep() {
   const list = document.getElementById('anchorList');
-  if (anchors.length === 0) {
-    list.innerHTML = `<div class="empty-hint"><div class="empty-icon">🌿</div>あなたの「なぜ」を置いてみましょう</div>`;
-  } else {
-    list.innerHTML = anchors.map((item, i) => `
-      <div class="anchor-card">
-        <div class="anchor-text">${escHtml(item.text)}</div>
-        <div class="anchor-meta">${item.date}</div>
-        <button class="anchor-del" onclick="delAnchor(${i})" aria-label="削除">✕</button>
-      </div>`).join('');
+  if (!anchors.length) {
+    list.innerHTML = `<div class="empty-hint"><div class="empty-icon">🌿</div>水面のメモを「🌿 深層へ」で<br>スライドしてみましょう</div>`;
+    return;
   }
+  list.innerHTML = anchors.map(item => {
+    const isOpen = anchorEditOpen === String(item.id);
+    const meaningHtml = item.meaning ? `
+      <div class="anchor-meaning-display">
+        <div class="anchor-meaning-label">MEANING</div>
+        <div class="anchor-meaning-text">${esc(item.meaning)}</div>
+      </div>` : '';
+    return `
+    <div class="anchor-card" id="ac-${item.id}">
+      <div class="anchor-card-main">
+        <div class="anchor-actions">
+          <button class="anchor-edit-btn" onclick="toggleAnchorEdit('${item.id}')">✏️</button>
+          <button class="anchor-del" onclick="delAnchor('${item.id}')">✕</button>
+        </div>
+        <div class="anchor-text">${esc(item.text)}</div>
+        <div class="anchor-meta">${item.date}</div>
+        ${meaningHtml}
+      </div>
+      <div class="anchor-edit-panel ${isOpen?'open':''}" id="aep-${item.id}">
+        <div class="anchor-edit-label">✨ 意味・気持ちを書き足す</div>
+        <textarea class="anchor-edit-memo" id="aem-${item.id}"
+          placeholder="例：「これがあると安心できる」&#10;「自分を守るために大切なこと」" rows="3">${item.meaning||''}</textarea>
+        <button class="anchor-save-btn" onclick="saveAnchor('${item.id}')">保存 ✓</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
+function toggleAnchorEdit(id) {
+  anchorEditOpen = anchorEditOpen === String(id) ? null : String(id);
+  renderDeep();
+}
+
+function saveAnchor(id) {
+  const item = anchors.find(x => String(x.id) === String(id));
+  if (!item) return;
+  item.meaning = document.getElementById(`aem-${id}`).value.trim();
+  LS.set('tl_anchors', anchors);
+  anchorEditOpen = null;
+  renderDeep();
+  showToast('意味を書き足しました 🌿');
+}
+
+/* ── badges ── */
 function updateBadges() {
   const wc = document.getElementById('waterCount');
-  wc.textContent = throws.length || '';
-  wc.classList.toggle('show', throws.length > 0);
-
+  wc.textContent = throws.length||''; wc.classList.toggle('show', throws.length>0);
+  const ft = calItems.length + todoItems.filter(t=>!t.done).length + pendItems.length;
   const fc = document.getElementById('flowCount');
-  const flowTotal = calItems.length + todoItems.filter(t=>!t.done).length + pendItems.length;
-  fc.textContent = flowTotal || '';
-  fc.classList.toggle('show', flowTotal > 0);
+  fc.textContent = ft||''; fc.classList.toggle('show', ft>0);
+  const dc = document.getElementById('deepCount');
+  dc.textContent = anchors.length||''; dc.classList.toggle('show', anchors.length>0);
 }
 
-// ── Actions ──
+/* ── Water: add/delete ── */
 function addThrow() {
   const inp = document.getElementById('throwInput');
   const text = inp.value.trim();
@@ -814,98 +697,77 @@ function addThrow() {
   const now = new Date();
   throws.unshift({ text, time: formatTime(now), id: now.getTime() });
   LS.set('tl_throws', throws);
-  inp.value = '';
-  inp.style.height = '';
+  inp.value = ''; inp.style.height = '';
   render();
   showToast('投げ込みました 🌊');
 }
+function delThrow(i) { throws.splice(i,1); LS.set('tl_throws',throws); render(); }
 
-function delThrow(i) {
-  throws.splice(i, 1);
-  LS.set('tl_throws', throws);
-  render();
+/* ── Slide animation ── */
+function fly(id, cb) {
+  const el = document.getElementById(`ti-${id}`);
+  if (!el) { cb(); return; }
+  el.classList.add('flying');
+  setTimeout(cb, 250);
 }
 
-function addFlow() {
-  const text = document.getElementById('flowText').value.trim();
-  if (!text) { showToast('内容を入力してください'); return; }
-
-  const now = new Date();
-  if (flowType === 'cal') {
-    const date = document.getElementById('flowDate').value || now.toISOString().split('T')[0];
-    const time = document.getElementById('flowTime').value || '';
-    calItems.push({ text, date, time, id: now.getTime() });
-    LS.set('tl_cal', calItems);
-    showToast('カレンダーに追加 📅');
-  } else if (flowType === 'todo') {
-    if (todoItems.filter(t => !t.done).length >= 3) {
-      showToast('ToDoは3つまで ✋');
-      return;
-    }
-    todoItems.push({ text, done: false, id: now.getTime() });
-    LS.set('tl_todo', todoItems);
-    showToast('ToDoに追加 ✅');
-  } else {
-    pendItems.push({ text, id: now.getTime() });
-    LS.set('tl_pend', pendItems);
-    showToast('保留ボックスへ 💭');
-  }
-
-  document.getElementById('flowText').value = '';
-  render();
+function slideTo(i, dest) {
+  const item = throws[i];
+  if (!item) return;
+  if (dest==='todo' && todoItems.filter(t=>!t.done).length>=3) { showToast('ToDoは3つまで ✋'); return; }
+  fly(item.id, () => {
+    throws.splice(i,1); LS.set('tl_throws',throws);
+    const now = new Date();
+    const ds = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
+    if (dest==='todo') { todoItems.push({text:item.text,done:false,id:item.id,memo:'',dueDate:''}); LS.set('tl_todo',todoItems); showToast('ToDoへスライド ✅'); }
+    if (dest==='pend') { pendItems.push({text:item.text,id:item.id,memo:''}); LS.set('tl_pend',pendItems); showToast('保留ボックスへ 💭'); }
+    if (dest==='deep') { anchors.unshift({text:item.text,date:ds,id:item.id,meaning:''}); LS.set('tl_anchors',anchors); showToast('深層へスライド 🌿'); }
+    render();
+  });
 }
 
-function delCal(i) { calItems.splice(i,1); LS.set('tl_cal',calItems); render(); }
-function delTodo(i) { todoItems.splice(i,1); LS.set('tl_todo',todoItems); render(); }
-function delPend(i) { pendItems.splice(i,1); LS.set('tl_pend',pendItems); render(); }
-function toggleTodo(i) { todoItems[i].done = !todoItems[i].done; LS.set('tl_todo',todoItems); render(); }
-
-function addAnchor() {
-  const inp = document.getElementById('anchorInput');
-  const text = inp.value.trim();
-  if (!text) return;
-  const now = new Date();
-  anchors.unshift({ text, date: `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`, id: now.getTime() });
-  LS.set('tl_anchors', anchors);
-  inp.value = '';
-  render();
-  showToast('アンカーを置きました 🌿');
+/* ── Cal slide sheet ── */
+function slideToCalSheet(i) {
+  sheetIdx = i;
+  document.getElementById('sheetPreview').textContent = throws[i].text;
+  document.getElementById('sheetTime').value = '';
+  document.getElementById('calSheet').classList.add('show');
 }
-function delAnchor(i) { anchors.splice(i,1); LS.set('tl_anchors',anchors); render(); }
-
-// ── Helpers ──
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
-function formatTime(d) {
-  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+function confirmCal() {
+  if (sheetIdx===null) return;
+  const item = throws[sheetIdx];
+  const date = document.getElementById('sheetDate').value || new Date().toISOString().split('T')[0];
+  const time = document.getElementById('sheetTime').value || '';
+  const si = sheetIdx;
+  closeSheet();
+  fly(item.id, () => {
+    throws.splice(si,1); LS.set('tl_throws',throws);
+    calItems.push({text:item.text,date,time,id:item.id,memo:''}); LS.set('tl_cal',calItems);
+    showToast('カレンダーへスライド 📅');
+    render();
+  });
+  sheetIdx = null;
 }
-function fmtDate(s) {
-  if (!s) return '';
-  const [y,m,d] = s.split('-');
-  const days = ['日','月','火','水','木','金','土'];
-  const day = new Date(s).getDay();
-  return `${m}/${d}（${days[day]}）`;
-}
+function closeSheet() { document.getElementById('calSheet').classList.remove('show'); sheetIdx=null; }
+document.getElementById('calSheet').addEventListener('click', e => { if(e.target===e.currentTarget) closeSheet(); });
 
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
-}
+/* ── Delete ── */
+function delCal(id)   { calItems=calItems.filter(x=>String(x.id)!==String(id));   LS.set('tl_cal',calItems);   calEditOpen=null;    renderCal();  updateBadges(); }
+function delTodo(id)  { todoItems=todoItems.filter(x=>String(x.id)!==String(id)); LS.set('tl_todo',todoItems); todoEditOpen=null;   renderTodo(); updateBadges(); }
+function delPend(id)  { pendItems=pendItems.filter(x=>String(x.id)!==String(id)); LS.set('tl_pend',pendItems); pendEditOpen=null;   renderPend(); updateBadges(); }
+function delAnchor(id){ anchors=anchors.filter(x=>String(x.id)!==String(id));     LS.set('tl_anchors',anchors); anchorEditOpen=null; renderDeep(); updateBadges(); }
+function toggleTodo(id){ const t=todoItems.find(x=>String(x.id)===String(id)); if(t){t.done=!t.done;LS.set('tl_todo',todoItems);renderTodo();updateBadges();} }
 
-// ── Textarea auto-resize ──
-document.getElementById('throwInput').addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 160) + 'px';
-});
-document.getElementById('throwInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addThrow(); }
-});
+/* ── Helpers ── */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function formatTime(d){ return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function fmtDate(s){ if(!s)return''; const days=['日','月','火','水','木','金','土']; const day=new Date(s).getDay(); const[,m,d]=s.split('-'); return `${m}/${d}（${days[day]}）`; }
 
-// Initial type state
-document.getElementById('dateRow').style.display = '';
+let toastT;
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+
+document.getElementById('throwInput').addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,160)+'px'; });
+document.getElementById('throwInput').addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addThrow();} });
 
 init();
 </script>

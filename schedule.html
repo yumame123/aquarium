@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三層スケジュール</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;700;900&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --surface3: #22222f;
+    --border: rgba(255,255,255,0.06);
+    --border-light: rgba(255,255,255,0.12);
+
+    --water: #4fc3f7;
+    --water-glow: rgba(79,195,247,0.15);
+    --water-dim: rgba(79,195,247,0.08);
+    --flow: #a78bfa;
+    --flow-glow: rgba(167,139,250,0.15);
+    --flow-dim: rgba(167,139,250,0.08);
+    --deep: #34d399;
+    --deep-glow: rgba(52,211,153,0.15);
+    --deep-dim: rgba(52,211,153,0.08);
+
+    --text: #f0f0f5;
+    --text-muted: rgba(240,240,245,0.45);
+    --text-dim: rgba(240,240,245,0.25);
+
+    --todo-accent: #f97316;
+    --todo-dim: rgba(249,115,22,0.12);
+
+    --radius: 20px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+
+    --tab-h: 64px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%; width: 100%; overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ── */
+  #app {
+    display: flex; flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 20px 20px 0;
+    flex-shrink: 0;
+  }
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-title {
+    font-size: 11px; font-weight: 400; letter-spacing: 0.2em;
+    color: var(--text-dim); text-transform: uppercase;
+  }
+  .date-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 300;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 5px 12px; border-radius: 100px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Tab bar ── */
+  .tabs {
+    display: flex; padding: 16px 20px 0; gap: 6px;
+    flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    padding: 10px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative; overflow: hidden;
+  }
+  .tab::before {
+    content: ''; position: absolute; inset: 0;
+    opacity: 0; transition: opacity 0.25s;
+    border-radius: inherit;
+  }
+  .tab[data-id="water"]::before { background: var(--water-dim); }
+  .tab[data-id="flow"]::before  { background: var(--flow-dim); }
+  .tab[data-id="deep"]::before  { background: var(--deep-dim); }
+
+  .tab.active { border-color: transparent; }
+  .tab[data-id="water"].active::before { opacity: 1; border: 1px solid rgba(79,195,247,0.3); }
+  .tab[data-id="flow"].active::before  { opacity: 1; border: 1px solid rgba(167,139,250,0.3); }
+  .tab[data-id="deep"].active::before  { opacity: 1; border: 1px solid rgba(52,211,153,0.3); }
+  .tab[data-id="water"].active { border-color: rgba(79,195,247,0.3); }
+  .tab[data-id="flow"].active  { border-color: rgba(167,139,250,0.3); }
+  .tab[data-id="deep"].active  { border-color: rgba(52,211,153,0.3); }
+
+  .tab-icon { font-size: 18px; line-height: 1; }
+  .tab-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--text-dim); transition: color 0.25s;
+  }
+  .tab[data-id="water"].active .tab-label { color: var(--water); }
+  .tab[data-id="flow"].active .tab-label  { color: var(--flow); }
+  .tab[data-id="deep"].active .tab-label  { color: var(--deep); }
+  .tab-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    display: none;
+  }
+  .tab[data-id="water"] .tab-dot { background: var(--water); }
+  .tab[data-id="flow"]  .tab-dot { background: var(--flow); }
+  .tab[data-id="deep"]  .tab-dot { background: var(--deep); }
+  .tab-dot.show { display: block; }
+
+  /* ── Panels ── */
+  .panels {
+    flex: 1; overflow: hidden; position: relative;
+    margin-top: 14px;
+  }
+  .panel {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 0 16px;
+    overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior: contain;
+    opacity: 0; transform: translateY(12px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    padding-bottom: calc(16px + var(--safe-bottom));
+    -webkit-overflow-scrolling: touch;
+  }
+  .panel.active {
+    opacity: 1; transform: translateY(0);
+    pointer-events: all;
+  }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 10px;
+    margin-top: 18px;
+  }
+  .section-label:first-child { margin-top: 0; }
+  .label-water { color: var(--water); }
+  .label-flow  { color: var(--flow); }
+  .label-deep  { color: var(--deep); }
+  .label-todo  { color: var(--todo-accent); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  /* ── WATER panel ── */
+  .throw-input-wrap {
+    position: relative; margin-bottom: 12px;
+  }
+  .throw-input {
+    width: 100%; background: var(--surface2);
+    border: 1.5px solid rgba(79,195,247,0.2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 16px; font-weight: 300;
+    padding: 14px 52px 14px 16px;
+    outline: none; resize: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-height: 52px; max-height: 200px;
+    line-height: 1.5;
+  }
+  .throw-input::placeholder { color: var(--text-dim); }
+  .throw-input:focus {
+    border-color: rgba(79,195,247,0.5);
+    box-shadow: 0 0 0 3px rgba(79,195,247,0.08);
+  }
+  .throw-btn {
+    position: absolute; right: 10px; bottom: 10px;
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--water); border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px;
+    transition: transform 0.15s, opacity 0.15s;
+    flex-shrink: 0;
+  }
+  .throw-btn:active { transform: scale(0.9); }
+
+  .throw-items { display: flex; flex-direction: column; gap: 8px; }
+  .throw-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .throw-item-text {
+    flex: 1; font-size: 14px; font-weight: 300;
+    line-height: 1.5; word-break: break-all;
+    color: var(--text);
+  }
+  .throw-item-time {
+    font-size: 10px; color: var(--text-dim);
+    font-family: 'Space Grotesk', sans-serif;
+    white-space: nowrap; margin-top: 1px;
+  }
+  .item-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-dim); font-size: 16px; line-height: 1;
+    padding: 2px; transition: color 0.15s;
+    flex-shrink: 0;
+  }
+  .item-del:active { color: #ef4444; }
+
+  .empty-hint {
+    text-align: center; padding: 32px 0;
+    color: var(--text-dim); font-size: 13px; font-weight: 300;
+    line-height: 1.8;
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+
+  /* ── FLOW panel ── */
+  .flow-date-group { margin-bottom: 16px; }
+  .flow-date-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--text-muted); margin-bottom: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    text-transform: uppercase;
+  }
+
+  /* Calendar events */
+  .cal-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--water);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 6px;
+    animation: slideIn 0.25s ease;
+  }
+  .cal-time {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 600; color: var(--water);
+    white-space: nowrap; min-width: 36px;
+  }
+  .cal-text { flex: 1; font-size: 14px; font-weight: 300; }
+  .cal-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 16px; padding: 2px; }
+  .cal-del:active { color: #ef4444; }
+
+  /* Pending */
+  .pending-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--flow);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 6px;
+    animation: slideIn 0.25s ease;
+  }
+  .pending-tag {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+    background: var(--flow-glow); color: var(--flow);
+    padding: 2px 7px; border-radius: 100px;
+    white-space: nowrap; margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .pending-text { flex: 1; font-size: 14px; font-weight: 300; line-height: 1.5; }
+  .pending-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 16px; padding: 2px; }
+  .pending-del:active { color: #ef4444; }
+
+  /* Flow add form */
+  .flow-add-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .flow-form-row {
+    display: flex; gap: 8px; margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .flow-form-row:last-child { margin-bottom: 0; }
+  .flow-input {
+    flex: 1; min-width: 0;
+    background: var(--surface2);
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius-xs);
+    color: var(--text);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px; font-weight: 300;
+    padding: 10px 12px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .flow-input::placeholder { color: var(--text-dim); }
+  .flow-input:focus { border-color: var(--flow); }
+  .flow-select {
+    background: var(--surface2);
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius-xs);
+    color: var(--text);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px; padding: 10px 10px;
+    outline: none; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .flow-select:focus { border-color: var(--flow); }
+  .type-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .type-btn {
+    padding: 8px 14px; border-radius: 100px;
+    border: 1.5px solid var(--border-light);
+    background: var(--surface2);
+    color: var(--text-muted); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .type-btn.selected-cal  { border-color: var(--water); color: var(--water); background: var(--water-dim); }
+  .type-btn.selected-todo { border-color: var(--todo-accent); color: var(--todo-accent); background: var(--todo-dim); }
+  .type-btn.selected-pend { border-color: var(--flow); color: var(--flow); background: var(--flow-dim); }
+  .flow-add-btn {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.1));
+    border: 1.5px solid rgba(167,139,250,0.3);
+    border-radius: var(--radius-sm);
+    color: var(--flow); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .flow-add-btn:active { transform: scale(0.98); opacity: 0.8; }
+
+  /* Flow hint */
+  .flow-hint {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .flow-hint-title {
+    font-size: 11px; font-weight: 700;
+    color: var(--flow); margin-bottom: 6px;
+  }
+  .flow-hint-list {
+    font-size: 12px; font-weight: 300; color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* ── TODO (in flow panel) ── */
+  .todo-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--todo-accent);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 6px;
+    animation: slideIn 0.25s ease;
+    transition: opacity 0.3s;
+  }
+  .todo-item.done { opacity: 0.4; }
+  .todo-check {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 2px solid rgba(249,115,22,0.4);
+    background: transparent; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .todo-check.checked {
+    background: var(--todo-accent); border-color: var(--todo-accent);
+  }
+  .todo-check.checked::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
+  .todo-text {
+    flex: 1; font-size: 14px; font-weight: 300;
+    transition: text-decoration 0.2s;
+  }
+  .todo-item.done .todo-text { text-decoration: line-through; }
+  .todo-del { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 16px; padding: 2px; }
+
+  /* Todo count badge */
+  .todo-count-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .todo-count-badge {
+    font-size: 11px; font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    padding: 4px 10px; border-radius: 100px;
+  }
+  .todo-count-badge.ok  { background: var(--todo-dim); color: var(--todo-accent); }
+  .todo-count-badge.max { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+  /* ── DEEP panel ── */
+  .anchor-list { display: flex; flex-direction: column; gap: 10px; }
+  .anchor-card {
+    background: linear-gradient(135deg, var(--surface2), var(--surface));
+    border: 1px solid rgba(52,211,153,0.15);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    position: relative; overflow: hidden;
+    animation: slideIn 0.25s ease;
+  }
+  .anchor-card::before {
+    content: ''; position: absolute;
+    top: -40px; right: -40px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: var(--deep-glow);
+    pointer-events: none;
+  }
+  .anchor-text {
+    font-size: 15px; font-weight: 400; line-height: 1.6;
+    color: var(--text);
+  }
+  .anchor-meta {
+    margin-top: 10px;
+    font-size: 10px; color: var(--text-dim);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .anchor-del {
+    position: absolute; top: 12px; right: 12px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-dim); font-size: 16px;
+  }
+  .anchor-del:active { color: #ef4444; }
+
+  .anchor-input-wrap { margin-bottom: 14px; }
+  .anchor-input {
+    width: 100%; background: var(--surface2);
+    border: 1.5px solid rgba(52,211,153,0.2);
+    border-radius: var(--radius-sm);
+    color: var(--text); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 15px; font-weight: 300; padding: 14px 16px;
+    outline: none; resize: none; min-height: 80px; line-height: 1.6;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .anchor-input:focus {
+    border-color: rgba(52,211,153,0.5);
+    box-shadow: 0 0 0 3px rgba(52,211,153,0.06);
+  }
+  .anchor-input::placeholder { color: var(--text-dim); }
+  .anchor-add-btn {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.08));
+    border: 1.5px solid rgba(52,211,153,0.3);
+    border-radius: var(--radius-sm);
+    color: var(--deep); font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; margin-bottom: 20px;
+  }
+  .anchor-add-btn:active { transform: scale(0.98); opacity: 0.8; }
+
+  /* Deep intro text */
+  .deep-intro {
+    background: var(--surface2);
+    border: 1px solid rgba(52,211,153,0.12);
+    border-radius: var(--radius);
+    padding: 16px; margin-bottom: 14px;
+  }
+  .deep-intro p { font-size: 13px; font-weight: 300; color: var(--text-muted); line-height: 1.8; }
+
+  /* ── Glow dot ── */
+  .glow-bar {
+    height: 2px; border-radius: 1px; margin-bottom: 18px;
+    flex-shrink: 0;
+  }
+  .glow-bar-water { background: linear-gradient(90deg, var(--water), transparent); }
+  .glow-bar-flow  { background: linear-gradient(90deg, var(--flow), transparent); }
+  .glow-bar-deep  { background: linear-gradient(90deg, var(--deep), transparent); }
+
+  /* ── Throw-from-water CTA ── */
+  .throw-to-flow-note {
+    text-align: center; font-size: 12px; font-weight: 300;
+    color: var(--text-dim); padding: 12px 0 4px;
+    line-height: 1.7;
+  }
+
+  /* ── Scrollbar ── */
+  .panel::-webkit-scrollbar { width: 2px; }
+  .panel::-webkit-scrollbar-track { background: transparent; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 1px; }
+
+  /* ── Water count badge ── */
+  .count-chip {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: 10px; font-weight: 700;
+    position: absolute; top: 6px; right: 6px;
+    opacity: 0; transition: opacity 0.2s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .tab[data-id="water"] .count-chip { background: var(--water); color: #000; }
+  .tab[data-id="flow"]  .count-chip { background: var(--flow); color: #fff; }
+  .count-chip.show { opacity: 1; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: calc(var(--tab-h) + 20px + var(--safe-bottom));
+    left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface3); border: 1px solid var(--border-light);
+    color: var(--text); font-size: 13px; font-weight: 400;
+    padding: 10px 20px; border-radius: 100px;
+    opacity: 0; pointer-events: none;
+    transition: all 0.3s ease; white-space: nowrap;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-inner">
+      <span class="header-title">三層スケジュール</span>
+      <span class="date-badge" id="todayLabel"></span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-id="water" onclick="switchTab('water')">
+      <span class="tab-icon">🌊</span>
+      <span class="tab-label">水面</span>
+      <span class="count-chip" id="waterCount"></span>
+    </div>
+    <div class="tab" data-id="flow" onclick="switchTab('flow')">
+      <span class="tab-icon">🌀</span>
+      <span class="tab-label">流れ</span>
+      <span class="count-chip" id="flowCount"></span>
+    </div>
+    <div class="tab" data-id="deep" onclick="switchTab('deep')">
+      <span class="tab-icon">🌿</span>
+      <span class="tab-label">深層</span>
+    </div>
+  </div>
+
+  <!-- Panels -->
+  <div class="panels">
+
+    <!-- WATER panel -->
+    <div class="panel active" id="panel-water">
+      <div style="height:6px"></div>
+      <div class="glow-bar glow-bar-water"></div>
+
+      <div class="throw-input-wrap">
+        <textarea class="throw-input" id="throwInput"
+          placeholder="思いついたこと、なんでも投げ込む&#10;「4/3 入学式」「教科書買う」など"
+          rows="1"></textarea>
+        <button class="throw-btn" onclick="addThrow()" aria-label="追加">↵</button>
+      </div>
+
+      <div class="throw-items" id="throwList"></div>
+
+      <div class="throw-to-flow-note" id="waterHint" style="display:none">
+        「流れ」タブで整理しましょう 🌀
+      </div>
+    </div>
+
+    <!-- FLOW panel -->
+    <div class="panel" id="panel-flow">
+      <div style="height:6px"></div>
+      <div class="glow-bar glow-bar-flow"></div>
+
+      <!-- Hint card -->
+      <div class="flow-hint">
+        <div class="flow-hint-title">🌀 1日1回の整理タイム</div>
+        <div class="flow-hint-list">
+          📅 日付あり → カレンダーへ<br>
+          ✅ タスク → ToDoへ（1日3つまで）<br>
+          💭 曖昧なもの → 保留ボックスへ
+        </div>
+      </div>
+
+      <!-- Add form -->
+      <div class="flow-add-card">
+        <div class="flow-form-row">
+          <input class="flow-input" id="flowText" placeholder="内容を入力" />
+        </div>
+        <div class="flow-form-row">
+          <div class="type-btns" id="typeBtns">
+            <button class="type-btn selected-cal" data-type="cal" onclick="selectType(this,'cal')">📅 カレンダー</button>
+            <button class="type-btn" data-type="todo" onclick="selectType(this,'todo')">✅ ToDo</button>
+            <button class="type-btn" data-type="pend" onclick="selectType(this,'pend')">💭 保留</button>
+          </div>
+        </div>
+        <div class="flow-form-row" id="dateRow">
+          <input class="flow-input" id="flowDate" type="date" />
+          <input class="flow-input" id="flowTime" type="time" style="max-width:110px" />
+        </div>
+        <button class="flow-add-btn" onclick="addFlow()">＋ 追加する</button>
+      </div>
+
+      <!-- Calendar section -->
+      <div id="calSection">
+        <div class="section-label label-water">📅 カレンダー</div>
+        <div id="calList"></div>
+      </div>
+
+      <!-- Todo section -->
+      <div id="todoSection">
+        <div class="todo-count-row">
+          <div class="section-label label-todo" style="margin:0">✅ 今日のToDo</div>
+          <span class="todo-count-badge ok" id="todoBadge">0 / 3</span>
+        </div>
+        <div id="todoList"></div>
+      </div>
+
+      <!-- Pending section -->
+      <div id="pendSection">
+        <div class="section-label label-flow">💭 保留ボックス</div>
+        <div id="pendList"></div>
+      </div>
+
+    </div>
+
+    <!-- DEEP panel -->
+    <div class="panel" id="panel-deep">
+      <div style="height:6px"></div>
+      <div class="glow-bar glow-bar-deep"></div>
+
+      <div class="deep-intro">
+        <p>「なぜこれをやるのか」を置く場所。<br>整理や行動ではなく、<strong>意味と安心</strong>のための場所です。</p>
+      </div>
+
+      <div class="anchor-input-wrap">
+        <textarea class="anchor-input" id="anchorInput"
+          placeholder="例：「大学生活を整えるため」&#10;「安心して生活するため」"></textarea>
+      </div>
+      <button class="anchor-add-btn" onclick="addAnchor()">＋ 意味を置く</button>
+
+      <div class="section-label label-deep">🌿 私のアンカー</div>
+      <div class="anchor-list" id="anchorList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Storage helpers ──
+const LS = {
+  get: (k) => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+// ── State ──
+let throws  = LS.get('tl_throws');
+let calItems = LS.get('tl_cal');
+let todoItems = LS.get('tl_todo');
+let pendItems = LS.get('tl_pend');
+let anchors  = LS.get('tl_anchors');
+let flowType = 'cal';
+
+// ── Init ──
+function init() {
+  // Today label
+  const d = new Date();
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('todayLabel').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${days[d.getDay()]}）`;
+
+  // Default date to today
+  document.getElementById('flowDate').value = d.toISOString().split('T')[0];
+
+  render();
+}
+
+// ── Tab switch ──
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab[data-id="${id}"]`).classList.add('active');
+  document.getElementById(`panel-${id}`).classList.add('active');
+}
+
+// ── Type select (flow form) ──
+function selectType(btn, type) {
+  flowType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected-cal','selected-todo','selected-pend'));
+  btn.classList.add(`selected-${type}`);
+  document.getElementById('dateRow').style.display = (type === 'cal') ? '' : 'none';
+}
+
+// ── Render ──
+function render() {
+  renderWater();
+  renderFlow();
+  renderDeep();
+  updateBadges();
+}
+
+function renderWater() {
+  const list = document.getElementById('throwList');
+  if (throws.length === 0) {
+    list.innerHTML = `<div class="empty-hint"><div class="empty-icon">💭</div>まだ何も投げ込まれていません<br>思いついたら、すぐここへ</div>`;
+    document.getElementById('waterHint').style.display = 'none';
+  } else {
+    list.innerHTML = throws.map((item, i) => `
+      <div class="throw-item">
+        <div style="flex:1">
+          <div class="throw-item-text">${escHtml(item.text)}</div>
+          <div class="throw-item-time">${item.time}</div>
+        </div>
+        <button class="item-del" onclick="delThrow(${i})" aria-label="削除">✕</button>
+      </div>`).join('');
+    document.getElementById('waterHint').style.display = throws.length >= 3 ? '' : 'none';
+  }
+}
+
+function renderFlow() {
+  // Calendar
+  const calList = document.getElementById('calList');
+  if (calItems.length === 0) {
+    calList.innerHTML = `<div class="empty-hint" style="padding:12px 0;font-size:12px">まだ予定がありません</div>`;
+  } else {
+    const sorted = [...calItems].sort((a,b) => (a.date+a.time) < (b.date+b.time) ? -1 : 1);
+    calList.innerHTML = sorted.map((item, i) => `
+      <div class="cal-item">
+        <div class="cal-time">${item.time || '--:--'}</div>
+        <div style="flex:1">
+          <div style="font-size:9px;color:var(--text-dim);margin-bottom:2px;font-family:'Space Grotesk',sans-serif">${fmtDate(item.date)}</div>
+          <div class="cal-text">${escHtml(item.text)}</div>
+        </div>
+        <button class="cal-del" onclick="delCal(${calItems.indexOf(item)})" aria-label="削除">✕</button>
+      </div>`).join('');
+  }
+
+  // Todo
+  const todoList = document.getElementById('todoList');
+  const badge = document.getElementById('todoBadge');
+  const active = todoItems.filter(t => !t.done).length;
+  badge.textContent = `${active} / 3`;
+  badge.className = `todo-count-badge ${active > 3 ? 'max' : 'ok'}`;
+  if (todoItems.length === 0) {
+    todoList.innerHTML = `<div class="empty-hint" style="padding:12px 0;font-size:12px">今日のToDoを3つまで追加</div>`;
+  } else {
+    todoList.innerHTML = todoItems.map((item, i) => `
+      <div class="todo-item ${item.done ? 'done' : ''}">
+        <div class="todo-check ${item.done ? 'checked' : ''}" onclick="toggleTodo(${i})"></div>
+        <div class="todo-text">${escHtml(item.text)}</div>
+        <button class="todo-del" onclick="delTodo(${i})" aria-label="削除">✕</button>
+      </div>`).join('');
+  }
+
+  // Pending
+  const pendList = document.getElementById('pendList');
+  if (pendItems.length === 0) {
+    pendList.innerHTML = `<div class="empty-hint" style="padding:12px 0;font-size:12px">保留中のものはありません</div>`;
+  } else {
+    pendList.innerHTML = pendItems.map((item, i) => `
+      <div class="pending-item">
+        <div class="pending-tag">保留</div>
+        <div class="pending-text">${escHtml(item.text)}</div>
+        <button class="pending-del" onclick="delPend(${i})" aria-label="削除">✕</button>
+      </div>`).join('');
+  }
+}
+
+function renderDeep() {
+  const list = document.getElementById('anchorList');
+  if (anchors.length === 0) {
+    list.innerHTML = `<div class="empty-hint"><div class="empty-icon">🌿</div>あなたの「なぜ」を置いてみましょう</div>`;
+  } else {
+    list.innerHTML = anchors.map((item, i) => `
+      <div class="anchor-card">
+        <div class="anchor-text">${escHtml(item.text)}</div>
+        <div class="anchor-meta">${item.date}</div>
+        <button class="anchor-del" onclick="delAnchor(${i})" aria-label="削除">✕</button>
+      </div>`).join('');
+  }
+}
+
+function updateBadges() {
+  const wc = document.getElementById('waterCount');
+  wc.textContent = throws.length || '';
+  wc.classList.toggle('show', throws.length > 0);
+
+  const fc = document.getElementById('flowCount');
+  const flowTotal = calItems.length + todoItems.filter(t=>!t.done).length + pendItems.length;
+  fc.textContent = flowTotal || '';
+  fc.classList.toggle('show', flowTotal > 0);
+}
+
+// ── Actions ──
+function addThrow() {
+  const inp = document.getElementById('throwInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  const now = new Date();
+  throws.unshift({ text, time: formatTime(now), id: now.getTime() });
+  LS.set('tl_throws', throws);
+  inp.value = '';
+  inp.style.height = '';
+  render();
+  showToast('投げ込みました 🌊');
+}
+
+function delThrow(i) {
+  throws.splice(i, 1);
+  LS.set('tl_throws', throws);
+  render();
+}
+
+function addFlow() {
+  const text = document.getElementById('flowText').value.trim();
+  if (!text) { showToast('内容を入力してください'); return; }
+
+  const now = new Date();
+  if (flowType === 'cal') {
+    const date = document.getElementById('flowDate').value || now.toISOString().split('T')[0];
+    const time = document.getElementById('flowTime').value || '';
+    calItems.push({ text, date, time, id: now.getTime() });
+    LS.set('tl_cal', calItems);
+    showToast('カレンダーに追加 📅');
+  } else if (flowType === 'todo') {
+    if (todoItems.filter(t => !t.done).length >= 3) {
+      showToast('ToDoは3つまで ✋');
+      return;
+    }
+    todoItems.push({ text, done: false, id: now.getTime() });
+    LS.set('tl_todo', todoItems);
+    showToast('ToDoに追加 ✅');
+  } else {
+    pendItems.push({ text, id: now.getTime() });
+    LS.set('tl_pend', pendItems);
+    showToast('保留ボックスへ 💭');
+  }
+
+  document.getElementById('flowText').value = '';
+  render();
+}
+
+function delCal(i) { calItems.splice(i,1); LS.set('tl_cal',calItems); render(); }
+function delTodo(i) { todoItems.splice(i,1); LS.set('tl_todo',todoItems); render(); }
+function delPend(i) { pendItems.splice(i,1); LS.set('tl_pend',pendItems); render(); }
+function toggleTodo(i) { todoItems[i].done = !todoItems[i].done; LS.set('tl_todo',todoItems); render(); }
+
+function addAnchor() {
+  const inp = document.getElementById('anchorInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  const now = new Date();
+  anchors.unshift({ text, date: `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`, id: now.getTime() });
+  LS.set('tl_anchors', anchors);
+  inp.value = '';
+  render();
+  showToast('アンカーを置きました 🌿');
+}
+function delAnchor(i) { anchors.splice(i,1); LS.set('tl_anchors',anchors); render(); }
+
+// ── Helpers ──
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function formatTime(d) {
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function fmtDate(s) {
+  if (!s) return '';
+  const [y,m,d] = s.split('-');
+  const days = ['日','月','火','水','木','金','土'];
+  const day = new Date(s).getDay();
+  return `${m}/${d}（${days[day]}）`;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Textarea auto-resize ──
+document.getElementById('throwInput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 160) + 'px';
+});
+document.getElementById('throwInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addThrow(); }
+});
+
+// Initial type state
+document.getElementById('dateRow').style.display = '';
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ライフデザイン・システム</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --accent-color: #3498db;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+        /* サイドバー（案内キャラ）のスタイル */
+        #sidebar {
+            width: 320px;
+            background-color: var(--card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+        }
+        #avatar-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        #character-name-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .speech-bubble {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 10px 10px 10px;
+            border-style: solid;
+            border-color: transparent transparent var(--bg-color) transparent;
+        }
+        .settings-area {
+            width: 100%;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 0.85rem;
+        }
+        .settings-area input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        /* メインコンテンツ（計画シート）のスタイル */
+        #main-content {
+            flex-grow: 1;
+            padding: 30px 50px;
+            overflow-y: auto;
+        }
+        .step-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.03);
+        }
+        h2 {
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .instruction {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .checkbox-group label {
+            display: inline-block;
+            width: 48%;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--bg-color);
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .woop-group, .ifthen-group {
+            margin-bottom: 15px;
+        }
+        .woop-group label, .ifthen-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div id="avatar-container"></div>
+        <div id="character-name-display">ナビゲーター</div>
+        <div class="speech-bubble" id="speech-text">
+            こんにちは！まずはシステム計画を始めましょう。各項目をクリックすると、僕が入力のコツを案内しますね。
+        </div>
+
+        <div class="settings-area">
+            <strong>⚙️ キャラクター設定</strong><br><br>
+            <label>名前:</label>
+            <input type="text" id="setting-name" placeholder="ナビゲーター">
+            <label>画像URL (空欄で図形):</label>
+            <input type="text" id="setting-img" placeholder="https://...">
+        </div>
+    </div>
+
+    <div id="main-content">
+        <h1>ライフデザイン・システム</h1>
+
+        <div class="step-card" id="step1" tabindex="0">
+            <h2>Step 1: 価値観のベクトル設定</h2>
+            <p class="instruction">自分のエネルギーが向かう「動詞」を選ぶだけで、大まかな方向性(ベクトル)を決定します。</p>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="verb1"> 探求する・解明する</label>
+                <label><input type="checkbox" id="verb2"> 創造する・表現する</label>
+                <label><input type="checkbox" id="verb3"> 解決する・構築する</label>
+                <label><input type="checkbox" id="verb4"> 伝える・教える</label>
+                <label><input type="checkbox" id="verb5"> 獲得する・達成する</label>
+                <label><input type="checkbox" id="verb6"> 支援する・導く</label>
+            </div>
+        </div>
+
+        <div class="step-card" id="step2" tabindex="0">
+            <h2>Step 2: 4年間のオデッセイ・プランニング</h2>
+            <p class="instruction">大学の4年間から卒業後1年目(計5年間)のシナリオを、単語レベルの箇条書きで3パターン作成します。</p>
+            <table>
+                <tr>
+                    <th>年次</th>
+                    <th>プランA (王道・最も関心がある道)</th>
+                    <th>プランB (Aの道が突然消滅した場合)</th>
+                    <th>プランC (金銭や体面の制約がない場合)</th>
+                </tr>
+                <tr>
+                    <td>1年</td>
+                    <td><input type="text" id="pA1" placeholder="例: 教員免許の基礎科目の履修"></td>
+                    <td><input type="text" id="pB1" placeholder="例: プログラミングの基礎習得"></td>
+                    <td><input type="text" id="pC1" placeholder="例: 日本中を巡る"></td>
+                </tr>
+                <tr>
+                    <td>2年</td>
+                    <td><input type="text" id="pA2" placeholder="例: 専門分野の絞り込み"></td>
+                    <td><input type="text" id="pB2" placeholder="例: 関連資格の取得"></td>
+                    <td><input type="text" id="pC2" placeholder="例: 海外での長期滞在"></td>
+                </tr>
+                <tr>
+                    <td>3年</td>
+                    <td><input type="text" id="pA3" placeholder="例: 独自の問いの立案ゼミ"></td>
+                    <td><input type="text" id="pB3" placeholder="例: 長期インターンシップ"></td>
+                    <td><input type="text" id="pC3" placeholder="例: アート作品の制作"></td>
+                </tr>
+                <tr>
+                    <td>4年</td>
+                    <td><input type="text" id="pA4" placeholder="例: 卒業論文の執筆"></td>
+                    <td><input type="text" id="pB4" placeholder="例: 企業からの内定獲得"></td>
+                    <td><input type="text" id="pC4" placeholder="例: 起業・出版の準備"></td>
+                </tr>
+                <tr>
+                    <td>+1年</td>
+                    <td><input type="text" id="pA5" placeholder="例: 学校現場での指導開始"></td>
+                    <td><input type="text" id="pB5" placeholder="例: 企業への就職"></td>
+                    <td><input type="text" id="pC5" placeholder="例: フリーランスとして独立"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step-card" id="step3" tabindex="0">
+            <h2>Step 3: WOOPフレームワークによる解像度の向上</h2>
+            <p class="instruction">プランAの「1年目」にフォーカスし、目標と現実のギャップをシステム化します。</p>
+            <div class="woop-group">
+                <label>Wish (願い): 今年の最大の目標は...</label>
+                <input type="text" id="woop-w" placeholder="例: 大学生活の基盤と学習習慣を確立する">
+            </div>
+            <div class="woop-group">
+                <label>Outcome (結果): それが達成されると、私は...</label>
+                <input type="text" id="woop-o" placeholder="例: 充実感と、次年度への安心感を得られる">
+            </div>
+            <div class="woop-group">
+                <label>Obstacle (障害): それを阻む私の内部の最大の障害は...</label>
+                <input type="text" id="woop-o2" placeholder="例: 難解なテキストを読む際の集中力切れ">
+            </div>
+            <div class="woop-group">
+                <label>Plan (計画): もし【障害】が起きたら、私は...</label>
+                <input type="text" id="woop-p" placeholder="例: 場所を図書館に変える">
+            </div>
+        </div>
+
+        <div class="step-card" id="step4" tabindex="0">
+            <h2>Step 4: If-Thenプランニングによるスケジュールの自動化</h2>
+            <p class="instruction">日常のスケジュールやトリガー(引き金)に行動を紐付けます。文章量は最小限にします。</p>
+            
+            <div class="ifthen-group">
+                <label>行動ルール 1</label>
+                <input type="text" id="if1" placeholder="If: 仙台の寮の自室のデスクに座ったら" style="margin-bottom:5px;">
+                <input type="text" id="then1" placeholder="Then: TOEFLの単語帳を1ページだけ開く">
+            </div>
+            <div class="ifthen-group">
+                <label>行動ルール 2</label>
+                <input type="text" id="if2" placeholder="If: 通学の電車で座席に座ったら" style="margin-bottom:5px;">
+                <input type="text" id="then2" placeholder="Then: スマートフォンのメモ帳を開き、思考の断片を1行だけ書く">
+            </div>
+            <div class="ifthen-group">
+                <label>行動ルール 3</label>
+                <input type="text" id="if3" placeholder="If: 夜、お風呂から上がったら" style="margin-bottom:5px;">
+                <input type="text" id="then3" placeholder="Then: 明日のタスクを3つだけ箇条書きにする">
+            </div>
+        </div>
+
+        <div class="step-card" id="review" tabindex="0">
+            <h2>システム運用のための週次レビュー (PDCA)</h2>
+            <p class="instruction">このシステムを機能させ続けるためには、壮大な計画を振り返る「メンテナンス」の時間を固定する必要があります。</p>
+            <ul>
+                <li><strong>日時設定:</strong> 毎週日曜日の20:00 (15分間)</li>
+                <li><strong>確認事項1:</strong> 今週の「If-Then」の達成率をチェックする。</li>
+                <li><strong>確認事項2:</strong> 失敗した「If-Then」があれば、自分の意志の弱さを責めるのではなく、「条件(If)」か「行動(Then)」のハードルが高すぎたと見なし、より簡単なものにシステムを修正する。</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // キャラクターのセリフ定義
+        const speeches = {
+            "step1": "ここでは文章を書かず、以下のリストから、直感で最もワクワクする、または重要だと感じる「動詞」を3つ選んでくださいね！",
+            "step2": "「正解のルートは一つしかない」というプレッシャーは不要です。表のマスを、それぞれ1〜2語のキーワードで埋めて、3つのシナリオを作りましょう。",
+            "step3": "ニューヨーク大学のガブリエル・エッティンゲン教授が提唱した「WOOPの法則」を使います。Step 2で作ったプランAの「1年目」にフォーカスして穴埋めしてください。",
+            "step4": "「いつかやる」はシステムエラーの元です。コロンビア大学の研究で効果が実証されている「If-Then (もしXならYをする)」の形式で日常の行動を紐付けましょう！",
+            "review": "計画はメンテナンスが命です！毎週日曜日20時の15分間を利用して、If-Thenのハードル調整をしてくださいね。"
+        };
+
+        const speechEl = document.getElementById('speech-text');
+        const nameDisplayEl = document.getElementById('character-name-display');
+        const avatarEl = document.getElementById('avatar-container');
+        
+        // 設定用Input
+        const settingNameInput = document.getElementById('setting-name');
+        const settingImgInput = document.getElementById('setting-img');
+        
+        // 全ての入力要素を取得
+        const allInputs = document.querySelectorAll('#main-content input, #sidebar input');
+
+        // イベントリスナーの設定
+        document.querySelectorAll('.step-card').forEach(card => {
+            // 要素にフォーカスが当たったとき（クリックされたとき）にセリフを変更
+            card.addEventListener('focusin', () => {
+                if (speeches[card.id]) {
+                    speechEl.textContent = speeches[card.id];
+                }
+            });
+            // クリック時も同様に発火
+            card.addEventListener('click', () => {
+                if (speeches[card.id]) {
+                    speechEl.textContent = speeches[card.id];
+                }
+            });
+        });
+
+        // データ保存処理
+        function saveData() {
+            const data = {};
+            allInputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    data[input.id] = input.checked;
+                } else {
+                    data[input.id] = input.value;
+                }
+            });
+            localStorage.setItem('lifeDesignSysData', JSON.stringify(data));
+        }
+
+        // キャラクター設定の即時反映
+        function updateCharacterUI() {
+            const name = settingNameInput.value || "ナビゲーター";
+            const imgUrl = settingImgInput.value;
+            
+            nameDisplayEl.textContent = name;
+            
+            if (imgUrl) {
+                avatarEl.style.backgroundImage = `url('${imgUrl}')`;
+                avatarEl.style.backgroundColor = "transparent";
+            } else {
+                avatarEl.style.backgroundImage = "none";
+                avatarEl.style.backgroundColor = "var(--accent-color)"; // 初期状態の簡単な図形（円）
+            }
+        }
+
+        // データ読み込み処理
+        function loadData() {
+            const saved = localStorage.getItem('lifeDesignSysData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                allInputs.forEach(input => {
+                    if (data[input.id] !== undefined) {
+                        if (input.type === 'checkbox') {
+                            input.checked = data[input.id];
+                        } else {
+                            input.value = data[input.id];
+                        }
+                    }
+                });
+            }
+            updateCharacterUI();
+        }
+
+        // 全入力要素に変更があったら即時保存
+        allInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                saveData();
+                if(input.id === 'setting-name' || input.id === 'setting-img') {
+                    updateCharacterUI();
+                }
+            });
+        });
+
+        // ページ読み込み時にデータを復元
+        window.addEventListener('DOMContentLoaded', loadData);
+
+    </script>
+</body>
+</html>
